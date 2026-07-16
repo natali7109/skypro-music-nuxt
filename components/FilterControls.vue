@@ -1,106 +1,171 @@
 <template>
-  <div class="centerblock__search">
-    <svg class="search__svg" width="17" height="17" viewBox="0 0 17 17" fill="none">
-      <path d="M12.5 12.5L16 16M2 7.5C2 10.5376 4.46243 13 7.5 13C10.5376 13 13 10.5376 13 7.5C13 4.46243 10.5376 2 7.5 2C4.46243 2 2 4.46243 2 7.5Z" stroke="white" stroke-width="2"/>
-    </svg>
-    <input
-      type="text"
-      class="search__text"
-      placeholder="Поиск"
-      v-model="searchQuery"
-    />
-  </div>
-  <div class="centerblock__filter">
+  <div class="filter__row">
     <span class="filter__title">Искать по:</span>
-    <button class="filter__button" :class="{ active: activeFilter === 'artist' }" @click="setFilter('artist')">Исполнителю</button>
-    <button class="filter__button" :class="{ active: activeFilter === 'year' }" @click="setFilter('year')">Году выпуска</button>
-    <button class="filter__button" :class="{ active: activeFilter === 'title' }" @click="setFilter('title')">Названию</button>
+
+    <div class="filter__wrapper">
+      <button class="filter__btn" :class="{ active: activeFilter === 'author' }" @click="toggleFilter('author')">
+        исполнителю
+        <span v-if="selectedAuthors.length" class="badge">{{ selectedAuthors.length }}</span>
+      </button>
+      <div v-if="activeFilter === 'author'" class="filter__dropdown">
+        <div v-for="item in authorItems" :key="item" class="filter__item" :class="{ selected: selectedAuthors.includes(item) }" @click="toggleAuthor(item)">
+          {{ item }}
+        </div>
+      </div>
+    </div>
+
+    <div class="filter__wrapper">
+      <button class="filter__btn" :class="{ active: activeFilter === 'year' }" @click="toggleFilter('year')">
+        году выпуска
+        <span v-if="selectedYears.length" class="badge">{{ selectedYears.length }}</span>
+      </button>
+      <div v-if="activeFilter === 'year'" class="filter__dropdown">
+        <div v-for="item in yearItems" :key="item" class="filter__item" :class="{ selected: selectedYears.includes(item) }" @click="toggleYear(item)">
+          {{ item }}
+        </div>
+      </div>
+    </div>
+
+    <div class="filter__wrapper">
+      <button class="filter__btn" :class="{ active: activeFilter === 'genre' }" @click="toggleFilter('genre')">
+        жанру
+        <span v-if="selectedGenres.length" class="badge">{{ selectedGenres.length }}</span>
+      </button>
+      <div v-if="activeFilter === 'genre'" class="filter__dropdown">
+        <div v-for="item in genreItems" :key="item" class="filter__item" :class="{ selected: selectedGenres.includes(item) }" @click="toggleGenre(item)">
+          {{ item }}
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, computed } from 'vue'
+import { useTracks } from '@/composables/useTracks'
 
-const searchQuery = ref('')
+const { tracks } = useTracks()
+
 const activeFilter = ref(null)
+const selectedAuthors = ref([])
+const selectedGenres = ref([])
+const selectedYears = ref([])
 
-const emit = defineEmits(['update:search', 'update:filter'])
+const toggleFilter = (filter) => {
+  activeFilter.value = activeFilter.value === filter ? null : filter
+}
 
-watch(searchQuery, (value) => {
-  emit('update:search', value)
+const authorItems = computed(() => {
+  const set = new Set()
+  tracks.value.forEach(t => t.author && set.add(t.author))
+  return Array.from(set).sort()
 })
 
-const setFilter = (filter) => {
-  activeFilter.value = activeFilter.value === filter ? null : filter
-  emit('update:filter', activeFilter.value)
+const yearItems = computed(() => {
+  const set = new Set()
+  tracks.value.forEach(t => {
+    const year = t.release_date?.split('-')[0]
+    if (year) set.add(year)
+  })
+  return Array.from(set).sort((a, b) => b - a)
+})
+
+const genreItems = computed(() => {
+  const set = new Set()
+  tracks.value.forEach(t => {
+    if (Array.isArray(t.genre)) t.genre.forEach(g => set.add(g.toLowerCase()))
+    else if (t.genre) set.add(t.genre.toLowerCase())
+  })
+  return Array.from(set).sort()
+})
+
+const toggleAuthor = (item) => {
+  const idx = selectedAuthors.value.indexOf(item)
+  idx > -1 ? selectedAuthors.value.splice(idx, 1) : selectedAuthors.value.push(item)
+}
+const toggleGenre = (item) => {
+  const idx = selectedGenres.value.indexOf(item)
+  idx > -1 ? selectedGenres.value.splice(idx, 1) : selectedGenres.value.push(item)
+}
+const toggleYear = (item) => {
+  const idx = selectedYears.value.indexOf(item)
+  idx > -1 ? selectedYears.value.splice(idx, 1) : selectedYears.value.push(item)
 }
 </script>
 
 <style scoped>
-.centerblock__search {
-  width: 100%;
-  border-bottom: 1px solid #4e4e4e;
-  margin-bottom: 51px;
+.filter__row {
   display: flex;
-  align-items: center;
-}
-
-.search__svg {
-  width: 17px;
-  height: 17px;
-  margin-right: 5px;
-  stroke: #ffffff;
-  fill: transparent;
-}
-
-.search__text {
-  flex-grow: 100;
-  background-color: transparent;
-  border: none;
-  padding: 13px 10px 14px;
-  font-size: 16px;
-  line-height: 24px;
-  color: #ffffff;
-}
-
-.search__text::placeholder {
-  color: #ffffff;
-}
-
-.centerblock__filter {
-  display: flex;
-  align-items: center;
-  margin-bottom: 51px;
   flex-wrap: wrap;
+  align-items: center;
   gap: 10px;
+  margin-bottom: 30px;
 }
 
 .filter__title {
+  color: #fff;
   font-size: 16px;
-  line-height: 24px;
-  margin-right: 15px;
-  color: #ffffff;
 }
 
-.filter__button {
-  font-size: 16px;
-  line-height: 24px;
-  border: 1px solid #ffffff;
-  border-radius: 60px;
-  padding: 6px 20px;
+.filter__wrapper {
+  position: relative;
+}
+
+.filter__btn {
+  padding: 6px 18px;
+  border: 1px solid #555;
+  border-radius: 20px;
   background: transparent;
-  color: #ffffff;
+  color: #fff;
+  font-size: 14px;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: 0.2s;
 }
 
-.filter__button:hover {
+.filter__btn:hover {
   border-color: #d9b6ff;
   color: #d9b6ff;
 }
-
-.filter__button.active {
+.filter__btn.active {
   border-color: #ad61ff;
   color: #ad61ff;
+}
+
+.badge {
+  background: #7334ea;
+  border-radius: 50%;
+  padding: 1px 8px;
+  font-size: 11px;
+  color: #fff;
+  margin-left: 4px;
+}
+
+.filter__dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 6px;
+  background: #2a2a2a;
+  border-radius: 8px;
+  padding: 6px;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 10;
+  min-width: 160px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+}
+
+.filter__item {
+  padding: 6px 14px;
+  color: #fff;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: 0.2s;
+}
+.filter__item:hover {
+  background: #3a3a3a;
+}
+.filter__item.selected {
+  background: #7334ea;
 }
 </style>
