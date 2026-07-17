@@ -11,17 +11,12 @@
     <div v-else-if="error" class="error">{{ error }}</div>
 
     <div v-else class="playlist__list">
-      <div
+      <Track
         v-for="track in filtered"
         :key="track._id"
-        class="playlist__track"
-        @click="$emit('select', track)"
-      >
-        <span class="col-track">{{ track.name }}</span>
-        <span class="col-artist">{{ track.author }}</span>
-        <span class="col-album">{{ track.album || '—' }}</span>
-        <span class="col-time">{{ formatDuration(track.duration_in_seconds) }}</span>
-      </div>
+        :track="track"
+        @select="$emit('select', track)"
+      />
     </div>
   </div>
 </template>
@@ -29,6 +24,7 @@
 <script setup>
 import { computed, onMounted } from 'vue'
 import { useTracks } from '@/composables/useTracks'
+import Track from './Track.vue'   
 
 const props = defineProps({
   searchQuery: String,
@@ -57,13 +53,6 @@ const filtered = computed(() => {
   return list
 })
 
-const formatDuration = (s) => {
-  if (!s) return '0:00'
-  const m = Math.floor(s / 60)
-  const sec = String(Math.floor(s % 60)).padStart(2, '0')
-  return `${m}:${sec}`
-}
-
 onMounted(fetchTracks)
 </script>
 
@@ -82,17 +71,6 @@ onMounted(fetchTracks)
 .col-artist { width: 30%; }
 .col-album { width: 30%; }
 .col-time { width: 10%; text-align: right; }
-
-.playlist__track {
-  display: flex;
-  padding: 10px 0;
-  border-bottom: 1px solid #2a2a2a;
-  cursor: pointer;
-  transition: 0.2s;
-}
-.playlist__track:hover {
-  background: #1f1f1f;
-}
 
 .skeleton {
   color: #888;

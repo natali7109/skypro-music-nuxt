@@ -1,21 +1,19 @@
 <template>
   <div class="wrapper">
     <div class="container">
-      <!-- Левое меню -->
-      <aside class="sidebar" :class="{ open: isMenuOpen }">
-        <div class="sidebar__logo">
+      <!-- ЛЕВОЕ МЕНЮ (по твоему CSS) -->
+      <nav class="main__nav" :class="{ open: isMenuOpen }">
+        <div class="nav__logo">
           <img src="/logo.png" alt="Skypro.Music" class="logo__image" />
         </div>
 
-        <!-- Бургер -->
-        <div class="sidebar__burger" @click="toggleMenu">
+        <div class="nav__burger" @click="toggleMenu">
           <span class="burger__line"></span>
           <span class="burger__line"></span>
           <span class="burger__line"></span>
         </div>
 
-        <!-- Меню (видимость зависит от isMenuOpen) -->
-        <nav class="sidebar__menu" v-if="isMenuOpen">
+        <div class="nav__menu" v-if="isMenuOpen">
           <ul class="menu__list">
             <li class="menu__item"><a href="#" class="menu__link">Главное</a></li>
             <li class="menu__item"><a href="#" class="menu__link">Мои треки</a></li>
@@ -23,31 +21,48 @@
               <button class="menu__link logout-btn" @click="handleLogout">Выйти</button>
             </li>
           </ul>
-        </nav>
-      </aside>
-
-      <!-- Хедер -->
-      <header class="main__header">
-        <div class="header__search">
-          <svg class="search__icon" width="18" height="18" viewBox="0 0 18 18" fill="none">
-            <circle cx="8" cy="8" r="6.5" stroke="white" stroke-width="1.5"/>
-            <path d="M13 13L17 17" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
-          </svg>
-          <input
-            v-model="searchQuery"
-            type="text"
-            class="search__input"
-            placeholder="Поиск"
-            @input="updateSearch"
-          />
         </div>
-        <button class="header__logout" @click="handleLogout">Выйти</button>
-      </header>
+      </nav>
 
-      <!-- Контент -->
+      <!-- ХЕДЕР -->
+<header class="main__header">
+  <div class="header__search">
+    <svg class="search__icon" width="18" height="18" viewBox="0 0 18 18" fill="none">
+      <circle cx="8" cy="8" r="6.5" stroke="white" stroke-width="1.5"/>
+      <path d="M13 13L17 17" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>
+    <input
+      v-model="searchQuery"
+      type="text"
+      class="search__input"
+      placeholder="Поиск"
+      @input="updateSearch"
+    />
+  </div>
+  <button class="header__logout" @click="handleLogout">
+    <!-- Иконка выхода вместо текста -->
+    <svg 
+      width="22" 
+      height="22" 
+      viewBox="0 0 24 24" 
+      fill="none" 
+      stroke="currentColor" 
+      stroke-width="2" 
+      stroke-linecap="round" 
+      stroke-linejoin="round"
+    >
+      <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" />
+      <path d="M15 9l3 3-3 3" stroke="currentColor" />
+      <path d="M10 12h8" stroke="currentColor" />
+      <path d="M8 3v18" stroke="currentColor" />
+    </svg>
+  </button>
+</header>
+
+      <!-- КОНТЕНТ -->
       <div class="main">
-        <section class="main__content">
-          <h2 class="main__title">Треки</h2>
+        <div class="main__centerblock">
+          <h2 class="centerblock__h2">Треки</h2>
 
           <FilterControls
             @update:search="searchQuery = $event"
@@ -59,22 +74,29 @@
             :sort-by="sortBy"
             @select="selectTrack"
           />
-        </section>
+        </div>
 
-        <aside class="main__sidebar">
-          
-          <div class="sidebar__list">
-            <div class="sidebar__item">
-              <img src="/img/playlist/playlist01.png" alt="Плейлист дня" class="sidebar__img" />
-            </div>
-            <div class="sidebar__item">
-              <img src="/img/playlist/playlist02.png" alt="100 танцевальных хитов" class="sidebar__img" />
-            </div>
-            <div class="sidebar__item">
-              <img src="/img/playlist/playlist03.png" alt="Инди-заряд" class="sidebar__img" />
+        <div class="main__sidebar">
+          <div class="sidebar__block">
+            <div class="sidebar__list">
+              <div class="sidebar__item">
+                <a href="#" class="sidebar__link">
+                  <img src="/img/playlist/playlist01.png" alt="Плейлист дня" class="sidebar__img" />
+                </a>
+              </div>
+              <div class="sidebar__item">
+                <a href="#" class="sidebar__link">
+                  <img src="/img/playlist/playlist02.png" alt="100 танцевальных хитов" class="sidebar__img" />
+                </a>
+              </div>
+              <div class="sidebar__item">
+                <a href="#" class="sidebar__link">
+                  <img src="/img/playlist/playlist03.png" alt="Инди-заряд" class="sidebar__img" />
+                </a>
+              </div>
             </div>
           </div>
-        </aside>
+        </div>
       </div>
 
       <PlayerBar :current-track="currentTrack" />
@@ -91,11 +113,8 @@ import PlayerBar from '@/components/PlayerBar.vue'
 const currentTrack = ref(null)
 const searchQuery = ref('')
 const sortBy = ref('default')
-
-// Состояние меню — по умолчанию закрыто
 const isMenuOpen = ref(false)
 
-// При монтировании — меню закрыто (это и так по умолчанию)
 onMounted(() => {
   isMenuOpen.value = false
 })
@@ -108,9 +127,7 @@ const selectTrack = (track) => {
   currentTrack.value = track
 }
 
-const updateSearch = () => {
-  // поиск уже обновляется через v-model
-}
+const updateSearch = () => {}
 
 const handleLogout = () => {
   localStorage.clear()
@@ -119,71 +136,81 @@ const handleLogout = () => {
 </script>
 
 <style scoped>
-/* ===== ЛЕВОЕ МЕНЮ ===== */
-.sidebar {
+/* ===== ЛЕВОЕ МЕНЮ (из твоего CSS) ===== */
+.main__nav {
+  width: 244px;
+  background-color: #181818;
+  padding: 20px 0 20px 36px;
+  height: 100vh;
   position: fixed;
   top: 0;
   left: 0;
-  bottom: 0;
-  width: 200px;
-  background: #181818;
-  border-right: 1px solid #2a2a2a;
-  padding: 24px 16px;
   z-index: 100;
-  display: flex;
-  flex-direction: column;
 }
 
-.sidebar__logo {
+.nav__logo {
+  width: 113.33px;
+  height: 43px;
+  padding: 13px 0 13px 0;
+  background-color: transparent;
   margin-bottom: 20px;
 }
 
 .logo__image {
-  height: 24px;
-  width: auto;
+  width: 113.33px;
+  height: 17px;
+  color: #181818;
 }
 
-.sidebar__burger {
+.nav__burger {
+  width: 20px;
+  height: 36px;
+  padding: 13px 0;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  justify-content: space-between;
   cursor: pointer;
-  margin-bottom: 30px;
 }
 
 .burger__line {
-  width: 24px;
-  height: 2px;
-  background: #d3d3d3;
+  display: inline-block;
+  width: 100%;
+  height: 1px;
+  background-color: #d3d3d3;
+}
+
+.nav__menu {
+  display: block;
+  visibility: visible;
 }
 
 .menu__list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
+  padding: 18px 0 10px 0;
 }
 
 .menu__item {
-  padding: 10px 0;
+  padding: 5px 0;
+  margin-bottom: 16px;
 }
 
 .menu__link {
-  color: #b3b3b3;
-  text-decoration: none;
+  color: #ffffff;
+  font-weight: 400;
   font-size: 16px;
+  line-height: 24px;
+  text-decoration: none;
   background: none;
   border: none;
   cursor: pointer;
-  padding: 0;
-  font-family: inherit;
+  font-family: "Montserrat", sans-serif;
 }
 
 .menu__link:hover {
-  color: #fff;
+  color: #d9b6ff;
 }
 
 .logout-btn {
-  color: #b3b3b3;
+  color: #ffffff;
 }
 
 .logout-btn:hover {
@@ -198,13 +225,13 @@ const handleLogout = () => {
   padding: 12px 24px;
   background: #181818;
   border-bottom: 1px solid #2a2a2a;
-  margin-left: 200px;
+  margin-left: 244px;
 }
 
 .header__search {
   position: relative;
   flex: 1;
-  max-width: 400px;
+  max-width: 800px;
 }
 
 .search__icon {
@@ -239,15 +266,26 @@ const handleLogout = () => {
   color: #fff;
   font-size: 14px;
   cursor: pointer;
+  padding: 8px;
+  display: flex;
+  border-radius: 50%;
+  align-items: center;
+  justify-content: center;
 }
 
 .header__logout:hover {
   color: #ff6b6b;
 }
 
+.header__logout svg {
+  width: 40px;
+  height: 40px;
+  
+}
+
 /* ===== КОНТЕНТ ===== */
 .main {
-  margin-left: 200px;
+  margin-left: 244px;
   padding: 20px 24px;
   display: flex;
   gap: 40px;
@@ -255,57 +293,66 @@ const handleLogout = () => {
   overflow: hidden;
 }
 
-.main__content {
+.main__centerblock {
   flex: 1;
   overflow-y: auto;
   padding-right: 20px;
 }
 
-.main__title {
-  font-size: 48px;
+.centerblock__h2 {
+  font-size: 64px;
   font-weight: 400;
-  color: #fff;
-  margin-bottom: 20px;
+  line-height: 72px;
+  letter-spacing: -0.8px;
+  color: #ffffff;
+  margin-bottom: 45px;
 }
 
-/* ===== ПЛЕЙЛИСТ ДНЯ ===== */
+/* ===== САЙДБАР (из твоего CSS) ===== */
 .main__sidebar {
-  width: 250px;
-  flex-shrink: 0;
-  padding-top: 300px;
+  max-width: 418px;
+  padding: 20px 90px 20px 78px;
   overflow-y: auto;
 }
 
-.sidebar__title {
-  font-size: 18px;
-  font-weight: 600;
-  color: #fff;
-  margin-bottom: 16px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
+.sidebar__block {
+  height: 100%;
+  padding: 240px 0 0 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
 }
 
 .sidebar__list {
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  height: 510px;
-  overflow: hidden;
+  align-items: center;
 }
 
 .sidebar__item {
-  flex: 1;
+  width: 250px;
+  height: 150px;
+}
+
+.sidebar__item:not(:last-child) {
+  margin-bottom: 30px;
+}
+
+.sidebar__link {
+  width: 100%;
+  height: 100%;
+  display: block;
 }
 
 .sidebar__img {
   width: 100%;
   height: 100%;
-  
   object-fit: cover;
+  border-radius: 8px;
 }
 
 @media (max-width: 768px) {
-  .sidebar,
+  .main__nav,
   .main__sidebar {
     display: none;
   }

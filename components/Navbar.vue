@@ -1,19 +1,19 @@
 <template>
-  <aside class="sidebar">
+  <nav class="main__nav">
     <!-- Логотип -->
-    <div class="sidebar__logo">
+    <div class="nav__logo">
       <img src="/logo.png" alt="Skypro.Music" class="logo__image" />
     </div>
 
     <!-- Бургер -->
-    <div class="sidebar__burger" @click="toggleMenu">
+    <div class="nav__burger" @click="toggleMenu">
       <span class="burger__line"></span>
       <span class="burger__line"></span>
       <span class="burger__line"></span>
     </div>
 
     <!-- Меню -->
-    <nav class="sidebar__menu" v-if="isOpen">
+    <div class="nav__menu" v-if="isOpen">
       <ul class="menu__list">
         <li class="menu__item">
           <a href="#" class="menu__link">Главное</a>
@@ -25,14 +25,14 @@
           <button class="menu__link logout-btn" @click="handleLogout">Выйти</button>
         </li>
       </ul>
-    </nav>
-  </aside>
+    </div>
+  </nav>
 </template>
 
 <script setup>
 import { ref } from 'vue'
 
-const isOpen = ref(true)
+const isOpen = ref(false)
 
 const toggleMenu = () => {
   isOpen.value = !isOpen.value
@@ -45,74 +45,81 @@ const handleLogout = () => {
 </script>
 
 <style scoped>
-.sidebar {
+/* ===== ЛЕВОЕ МЕНЮ (из твоего CSS) ===== */
+.main__nav {
+  width: 244px;
+  background-color: #181818;
+  padding: 20px 0 20px 36px;
+  height: 100vh;
   position: fixed;
   top: 0;
   left: 0;
-  bottom: 0;
-  width: 200px;
-  background: #181818;
-  border-right: 1px solid #2a2a2a;
-  padding: 24px 16px;
   z-index: 100;
-  display: flex;
-  flex-direction: column;
 }
 
-.sidebar__logo {
+.nav__logo {
+  width: 113.33px;
+  height: 43px;
+  padding: 13px 0 13px 0;
+  background-color: transparent;
   margin-bottom: 20px;
 }
 
 .logo__image {
-  height: 24px;
-  width: auto;
+  width: 113.33px;
+  height: 17px;
+  color: #181818;
 }
 
-.sidebar__burger {
+.nav__burger {
+  width: 20px;
+  height: 36px;
+  padding: 13px 0;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  justify-content: space-between;
   cursor: pointer;
-  margin-bottom: 30px;
 }
 
 .burger__line {
-  width: 24px;
-  height: 2px;
-  background: #d3d3d3;
+  display: inline-block;
+  width: 100%;
+  height: 1px;
+  background-color: #d3d3d3;
 }
 
-.sidebar__menu {
-  flex: 1;
+.nav__menu {
+  display: block;
+  visibility: visible;
 }
 
 .menu__list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
+  padding: 18px 0 10px 0;
 }
 
 .menu__item {
-  padding: 10px 0;
+  padding: 5px 0;
+  margin-bottom: 16px;
 }
 
 .menu__link {
-  color: #b3b3b3;
-  text-decoration: none;
+  color: #ffffff;
+  font-weight: 400;
   font-size: 16px;
+  line-height: 24px;
+  text-decoration: none;
   background: none;
   border: none;
   cursor: pointer;
-  padding: 0;
-  font-family: inherit;
+  font-family: "Montserrat", sans-serif;
 }
 
 .menu__link:hover {
-  color: #fff;
+  color: #d9b6ff;
 }
 
 .logout-btn {
-  color: #b3b3b3;
+  color: #ffffff;
 }
 
 .logout-btn:hover {
@@ -120,7 +127,7 @@ const handleLogout = () => {
 }
 
 @media (max-width: 768px) {
-  .sidebar {
+  .main__nav {
     display: none;
   }
 }
