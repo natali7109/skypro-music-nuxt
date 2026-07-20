@@ -2,7 +2,9 @@
   <nav class="main__nav">
     <!-- Логотип -->
     <div class="nav__logo">
-      <img src="/logo.png" alt="Skypro.Music" class="logo__image" />
+      <ClientOnly>
+        <img src="/logo.png" alt="Skypro.Music" class="logo__image" />
+      </ClientOnly>
     </div>
 
     <!-- Бургер -->
@@ -19,7 +21,7 @@
           <a href="#" class="menu__link">Главное</a>
         </li>
         <li class="menu__item">
-          <a href="#" class="menu__link">Мои треки</a>
+           <a href="/favorites" class="menu__link">Мои треки</a>
         </li>
         <li class="menu__item">
           <button class="menu__link logout-btn" @click="handleLogout">Выйти</button>

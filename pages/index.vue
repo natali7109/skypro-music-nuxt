@@ -1,29 +1,8 @@
 <template>
   <div class="wrapper">
     <div class="container">
-      <!-- ЛЕВОЕ МЕНЮ (по твоему CSS) -->
-      <nav class="main__nav" :class="{ open: isMenuOpen }">
-        <div class="nav__logo">
-          <img src="/logo.png" alt="Skypro.Music" class="logo__image" />
-        </div>
-
-        <div class="nav__burger" @click="toggleMenu">
-          <span class="burger__line"></span>
-          <span class="burger__line"></span>
-          <span class="burger__line"></span>
-        </div>
-
-        <div class="nav__menu" v-if="isMenuOpen">
-          <ul class="menu__list">
-            <li class="menu__item"><a href="#" class="menu__link">Главное</a></li>
-            <li class="menu__item"><a href="#" class="menu__link">Мои треки</a></li>
-            <li class="menu__item">
-              <button class="menu__link logout-btn" @click="handleLogout">Выйти</button>
-            </li>
-          </ul>
-        </div>
-      </nav>
-
+    <Navbar />
+      
       <!-- ХЕДЕР -->
 <header class="main__header">
   <div class="header__search">
@@ -40,14 +19,14 @@
     />
   </div>
   <button class="header__logout" @click="handleLogout">
-    <!-- Иконка выхода вместо текста -->
+    <!-- Иконка выхода -->
     <svg 
       width="22" 
       height="22" 
       viewBox="0 0 24 24" 
       fill="none" 
-      stroke="currentColor" 
-      stroke-width="2" 
+      stroke="#696969" 
+      stroke-width="0.5" 
       stroke-linecap="round" 
       stroke-linejoin="round"
     >
