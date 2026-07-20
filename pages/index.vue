@@ -1,139 +1,302 @@
 <template>
   <div class="wrapper">
     <div class="container">
+    <Navbar />
+      
+      <!-- ХЕДЕР -->
+<header class="main__header">
+  <div class="header__search">
+    <svg class="search__icon" width="18" height="18" viewBox="0 0 18 18" fill="none">
+      <circle cx="8" cy="8" r="6.5" stroke="white" stroke-width="1.5"/>
+      <path d="M13 13L17 17" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>
+    <input
+      v-model="searchQuery"
+      type="text"
+      class="search__input"
+      placeholder="Поиск"
+      @input="updateSearch"
+    />
+  </div>
+  <button class="header__logout" @click="handleLogout">
+    <!-- Иконка выхода -->
+    <svg 
+      width="22" 
+      height="22" 
+      viewBox="0 0 24 24" 
+      fill="none" 
+      stroke="#696969" 
+      stroke-width="0.5" 
+      stroke-linecap="round" 
+      stroke-linejoin="round"
+    >
+      <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" />
+      <path d="M15 9l3 3-3 3" stroke="currentColor" />
+      <path d="M10 12h8" stroke="currentColor" />
+      <path d="M8 3v18" stroke="currentColor" />
+    </svg>
+  </button>
+</header>
+
+      <!-- КОНТЕНТ -->
       <div class="main">
-        <Navbar />
         <div class="main__centerblock">
+          <h2 class="centerblock__h2">Треки</h2>
+
           <FilterControls
             @update:search="searchQuery = $event"
-            @update:filter="filterBy = $event"
+            @update:sort="sortBy = $event"
           />
+
           <Playlist
-            :tracks="tracks"
             :search-query="searchQuery"
-            :filter-by="filterBy"
+            :sort-by="sortBy"
             @select="selectTrack"
           />
         </div>
+
         <div class="main__sidebar">
-          <div class="sidebar__personal">
-            <span class="sidebar__personal-name">Войти</span>
-            <div class="sidebar__icon"></div>
-          </div>
           <div class="sidebar__block">
             <div class="sidebar__list">
               <div class="sidebar__item">
                 <a href="#" class="sidebar__link">
-                  <img
-                    src="/img/playlist/playlist01.png"
-                    alt="Плейлист 1"
-                    class="sidebar__img"
-                  />
+                  <img src="/img/playlist/playlist01.png" alt="Плейлист дня" class="sidebar__img" />
                 </a>
               </div>
               <div class="sidebar__item">
                 <a href="#" class="sidebar__link">
-                  <img
-                    src="/img/playlist/playlist02.png"
-                    alt="Плейлист 2"
-                    class="sidebar__img"
-                  />
+                  <img src="/img/playlist/playlist02.png" alt="100 танцевальных хитов" class="sidebar__img" />
                 </a>
               </div>
               <div class="sidebar__item">
                 <a href="#" class="sidebar__link">
-                  <img
-                    src="/img/playlist/playlist03.png"
-                    alt="Плейлист 3"
-                    class="sidebar__img"
-                  />
+                  <img src="/img/playlist/playlist03.png" alt="Инди-заряд" class="sidebar__img" />
                 </a>
               </div>
             </div>
           </div>
         </div>
       </div>
+
       <PlayerBar :current-track="currentTrack" />
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from "vue";
-import { tracks as allTracks } from "../data/tracks";
+import { ref, onMounted } from 'vue'
+import FilterControls from '@/components/FilterControls.vue'
+import Playlist from '@/components/Playlist.vue'
+import PlayerBar from '@/components/PlayerBar.vue'
 
-const tracks = ref(allTracks);
-const searchQuery = ref("");
-const filterBy = ref(null);
-const currentTrack = ref(null);
+const currentTrack = ref(null)
+const searchQuery = ref('')
+const sortBy = ref('default')
+const isMenuOpen = ref(false)
+
+onMounted(() => {
+  isMenuOpen.value = false
+})
+
+const toggleMenu = () => {
+  isMenuOpen.value = !isMenuOpen.value
+}
 
 const selectTrack = (track) => {
-  currentTrack.value = track;
-};
+  currentTrack.value = track
+}
+
+const updateSearch = () => {}
+
+const handleLogout = () => {
+  localStorage.clear()
+  window.location.href = '/login'
+}
 </script>
 
 <style scoped>
-.wrapper {
-  width: 100%;
-  min-height: 100%;
-  overflow: hidden;
-  background-color: #383838;
-}
-
-.container {
-  max-width: 1920px;
-  height: 100vh;
-  margin: 0 auto;
-  position: relative;
+/* ===== ЛЕВОЕ МЕНЮ (из твоего CSS) ===== */
+.main__nav {
+  width: 244px;
   background-color: #181818;
+  padding: 20px 0 20px 36px;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 100;
 }
 
-.main {
-  flex: 1 1 auto;
+.nav__logo {
+  width: 113.33px;
+  height: 43px;
+  padding: 13px 0 13px 0;
+  background-color: transparent;
+  margin-bottom: 20px;
+}
+
+.logo__image {
+  width: 113.33px;
+  height: 17px;
+  color: #181818;
+}
+
+.nav__burger {
+  width: 20px;
+  height: 36px;
+  padding: 13px 0;
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   justify-content: space-between;
-  height: calc(100vh - 73px);
+  cursor: pointer;
+}
+
+.burger__line {
+  display: inline-block;
+  width: 100%;
+  height: 1px;
+  background-color: #d3d3d3;
+}
+
+.nav__menu {
+  display: block;
+  visibility: visible;
+}
+
+.menu__list {
+  padding: 18px 0 10px 0;
+}
+
+.menu__item {
+  padding: 5px 0;
+  margin-bottom: 16px;
+}
+
+.menu__link {
+  color: #ffffff;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 24px;
+  text-decoration: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: "Montserrat", sans-serif;
+}
+
+.menu__link:hover {
+  color: #d9b6ff;
+}
+
+.logout-btn {
+  color: #ffffff;
+}
+
+.logout-btn:hover {
+  color: #ff6b6b;
+}
+
+/* ===== ХЕДЕР ===== */
+.main__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 24px;
+  background: #181818;
+  border-bottom: 1px solid #2a2a2a;
+  margin-left: 244px;
+}
+
+.header__search {
+  position: relative;
+  flex: 1;
+  max-width: 800px;
+}
+
+.search__icon {
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.search__input {
+  width: 100%;
+  padding: 8px 12px 8px 36px;
+  border: none;
+  border-bottom: 1px solid #4e4e4e;
+  background: transparent;
+  color: #fff;
+  font-size: 14px;
+  outline: none;
+}
+
+.search__input::placeholder {
+  color: #888;
+}
+
+.search__input:focus {
+  border-bottom-color: #7334ea;
+}
+
+.header__logout {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 8px;
+  display: flex;
+  border-radius: 50%;
+  align-items: center;
+  justify-content: center;
+}
+
+.header__logout:hover {
+  color: #ff6b6b;
+}
+
+.header__logout svg {
+  width: 40px;
+  height: 40px;
+  
+}
+
+/* ===== КОНТЕНТ ===== */
+.main {
+  margin-left: 244px;
+  padding: 20px 24px;
+  display: flex;
+  gap: 40px;
+  height: calc(100vh - 70px);
   overflow: hidden;
 }
 
 .main__centerblock {
-  width: auto;
-  flex-grow: 3;
-  padding: 20px 40px 20px 111px;
+  flex: 1;
   overflow-y: auto;
+  padding-right: 20px;
 }
 
+.centerblock__h2 {
+  font-size: 64px;
+  font-weight: 400;
+  line-height: 72px;
+  letter-spacing: -0.8px;
+  color: #ffffff;
+  margin-bottom: 45px;
+}
+
+/* ===== САЙДБАР (из твоего CSS) ===== */
 .main__sidebar {
   max-width: 418px;
   padding: 20px 90px 20px 78px;
-}
-
-.sidebar__personal {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  padding: 12px 0 15px 0;
-}
-
-.sidebar__personal-name {
-  font-size: 16px;
-  line-height: 24px;
-  color: #ffffff;
-  margin-right: 16px;
-}
-
-.sidebar__icon {
-  width: 43px;
-  height: 43px;
-  background-color: #313131;
-  border-radius: 50%;
-  cursor: pointer;
+  overflow-y: auto;
 }
 
 .sidebar__block {
   height: 100%;
-  padding: 20px 0 0 0;
+  padding: 240px 0 0 0;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -143,12 +306,15 @@ const selectTrack = (track) => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 30px;
 }
 
 .sidebar__item {
   width: 250px;
   height: 150px;
+}
+
+.sidebar__item:not(:last-child) {
+  margin-bottom: 30px;
 }
 
 .sidebar__link {
@@ -164,35 +330,14 @@ const selectTrack = (track) => {
   border-radius: 8px;
 }
 
-@media (max-width: 1024px) {
-  .main__sidebar {
-    padding: 20px 40px 20px 40px;
-  }
-  .sidebar__item {
-    width: 200px;
-    height: 120px;
-  }
-  .main__centerblock {
-    padding: 20px 24px 20px 24px;
-  }
-}
-
 @media (max-width: 768px) {
-  .main__nav {
-    width: 60px;
-    padding: 20px 10px;
-  }
-  .nav__logo {
-    width: 40px;
-  }
-  .logo__image {
-    width: 40px;
-  }
+  .main__nav,
   .main__sidebar {
     display: none;
   }
-  .main__centerblock {
-    padding: 20px 16px;
+  .main__header,
+  .main {
+    margin-left: 0;
   }
 }
 </style>

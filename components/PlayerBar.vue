@@ -1,5 +1,13 @@
 <template>
-  <div class="bar">
+  <div class="bar" v-if="currentTrack">
+    <audio 
+      ref="audioPlayer" 
+      :src="currentTrack.track_file" 
+      @timeupdate="updateProgress" 
+      @loadedmetadata="setDuration"
+      @canplay="onCanPlay"
+    ></audio>
+    
     <div class="bar__content">
       <div class="bar__player-progress">
         <div class="bar__player-progress-line" :style="{ width: progress + '%' }"></div>
@@ -30,15 +38,21 @@
           <div class="player__track-play">
             <div class="track-play__contain">
               <div class="track-play__image">
-                <svg class="track-play__svg" width="18" height="17" viewBox="0 0 18 17">
+                <img 
+                  v-if="currentTrack?.logo && typeof currentTrack.logo === 'string'" 
+                  :src="currentTrack.logo" 
+                  alt="Обложка" 
+                  style="width: 51px; height: 51px; object-fit: cover; border-radius: 4px;"
+                />
+                <svg v-else class="track-play__svg" width="18" height="17" viewBox="0 0 18 17">
                   <path d="M8 2L8 15M12 4L12 13M4 6L4 11M16 6L16 11" stroke="#4e4e4e" stroke-width="2"/>
                 </svg>
               </div>
               <div class="track-play__author">
-                <span class="track-play__author-link">{{ currentTrack?.artist || 'Не выбрано' }}</span>
+                <span class="track-play__author-link">{{ currentTrack?.name || "Не выбрано" }}</span>
               </div>
               <div class="track-play__album">
-                <span class="track-play__album-link">{{ currentTrack?.title || 'Выберите трек' }}</span>
+                <span class="track-play__album-link">{{ currentTrack?.author || "Выберите трек" }}</span>
               </div>
             </div>
           </div>
@@ -62,16 +76,79 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, watch, nextTick } from "vue";
 
-const isPlaying = ref(false)
-const progress = ref(30)
+const props = defineProps({
+  currentTrack: {
+    type: Object,
+    default: null,
+  },
+});
 
-const currentTrack = ref(null)
+const audioPlayer = ref(null);
+const isPlaying = ref(false);
+const progress = ref(0);
+const isReady = ref(false);
 
 const togglePlay = () => {
-  isPlaying.value = !isPlaying.value
-}
+  if (!audioPlayer.value || !isReady.value) return;
+  
+  if (isPlaying.value) {
+    audioPlayer.value.pause();
+  } else {
+    audioPlayer.value.play().catch(() => {});
+  }
+  isPlaying.value = !isPlaying.value;
+};
+
+const updateProgress = () => {
+  if (!audioPlayer.value) return;
+  const current = audioPlayer.value.currentTime;
+  const total = audioPlayer.value.duration || 1;
+  progress.value = (current / total) * 100;
+};
+
+const setDuration = () => {
+  if (!audioPlayer.value) return;
+  progress.value = 0;
+};
+
+const onCanPlay = () => {
+  isReady.value = true;
+  // Автоматически начинаем воспроизведение, если трек выбран
+  if (props.currentTrack) {
+    audioPlayer.value.play().catch(() => {});
+    isPlaying.value = true;
+  }
+};
+
+// Следим за сменой трека
+watch(() => props.currentTrack, (newTrack, oldTrack) => {
+  if (!newTrack || !audioPlayer.value) return;
+  
+  // Сбрасываем состояние готовности
+  isReady.value = false;
+  isPlaying.value = false;
+  progress.value = 0;
+  
+  // Загружаем новый трек
+  audioPlayer.value.load();
+  
+  // Ждём, когда он будет готов
+  const onCanPlayHandler = () => {
+    isReady.value = true;
+    audioPlayer.value.play().catch(() => {});
+    isPlaying.value = true;
+    audioPlayer.value.removeEventListener('canplay', onCanPlayHandler);
+  };
+  
+  audioPlayer.value.addEventListener('canplay', onCanPlayHandler);
+  
+  // Если трек уже готов (загружен из кеша)
+  if (audioPlayer.value.readyState >= 3) {
+    onCanPlayHandler();
+  }
+}, { immediate: true });
 </script>
 
 <style scoped>
@@ -99,7 +176,7 @@ const togglePlay = () => {
 
 .bar__player-progress-line {
   height: 100%;
-  background: #7334EA;
+  background: #7334ea;
   border-radius: 0 3px 3px 0;
   transition: width 0.3s ease;
 }
@@ -134,19 +211,9 @@ const togglePlay = () => {
   align-items: center;
 }
 
-.player__btn-prev-svg {
-  width: 15px;
-  height: 14px;
-}
-
 .player__btn-play-svg {
   width: 22px;
   height: 20px;
-}
-
-.player__btn-next-svg {
-  width: 15px;
-  height: 14px;
 }
 
 ._btn-icon:hover svg {
@@ -170,13 +237,6 @@ const togglePlay = () => {
   justify-content: center;
   border-radius: 4px;
   grid-area: image;
-}
-
-.track-play__svg {
-  width: 18px;
-  height: 17px;
-  fill: transparent;
-  stroke: #4e4e4e;
 }
 
 .track-play__author {
@@ -214,17 +274,6 @@ const togglePlay = () => {
   gap: 12px;
 }
 
-.volume__image {
-  width: 13px;
-  height: 18px;
-}
-
-.volume__svg {
-  width: 13px;
-  height: 18px;
-  fill: transparent;
-}
-
 .volume__progress {
   width: 109px;
   height: 5px;
@@ -235,7 +284,7 @@ const togglePlay = () => {
 .volume__progress-line {
   width: 60%;
   height: 100%;
-  background: #7334EA;
+  background: #7334ea;
   border-radius: 3px;
 }
 </style>
