@@ -212,7 +212,7 @@ const toggleLike = () => {
 .player__controls {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 16px;
   flex-shrink: 0;
 }
 
@@ -254,8 +254,8 @@ const toggleLike = () => {
 }
 
 .track-play__image {
-  width: 40px;
-  height: 40px;
+  width: 51px;
+  height: 51px;
   background: #313131;
   border-radius: 4px;
   display: flex;

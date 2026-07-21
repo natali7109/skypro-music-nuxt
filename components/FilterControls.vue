@@ -3,36 +3,36 @@
     <span class="filter__title">Искать по:</span>
 
     <div class="filter__wrapper">
-      <button class="filter__btn" :class="{ active: activeFilter === 'author' }" @click="toggleFilter('author')">
+      <button class="filter__btn" :class="{ active: filterStore.activeFilter === 'author' }" @click="filterStore.setActiveFilter('author')">
         исполнителю
-        <span v-if="selectedAuthors.length" class="badge">{{ selectedAuthors.length }}</span>
+        <span v-if="filterStore.selectedAuthors.length" class="badge">{{ filterStore.selectedAuthors.length }}</span>
       </button>
-      <div v-if="activeFilter === 'author'" class="filter__dropdown">
-        <div v-for="item in authorItems" :key="item" class="filter__item" :class="{ selected: selectedAuthors.includes(item) }" @click="toggleAuthor(item)">
+      <div v-if="filterStore.activeFilter === 'author'" class="filter__dropdown">
+        <div v-for="item in filterStore.authorItems" :key="item" class="filter__item" :class="{ selected: filterStore.selectedAuthors.includes(item) }" @click="filterStore.toggleAuthor(item)">
           {{ item }}
         </div>
       </div>
     </div>
 
     <div class="filter__wrapper">
-      <button class="filter__btn" :class="{ active: activeFilter === 'year' }" @click="toggleFilter('year')">
+      <button class="filter__btn" :class="{ active: filterStore.activeFilter === 'year' }" @click="filterStore.setActiveFilter('year')">
         году выпуска
-        <span v-if="selectedYears.length" class="badge">{{ selectedYears.length }}</span>
+        <span v-if="filterStore.selectedYears.length" class="badge">{{ filterStore.selectedYears.length }}</span>
       </button>
-      <div v-if="activeFilter === 'year'" class="filter__dropdown">
-        <div v-for="item in yearItems" :key="item" class="filter__item" :class="{ selected: selectedYears.includes(item) }" @click="toggleYear(item)">
+      <div v-if="filterStore.activeFilter === 'year'" class="filter__dropdown">
+        <div v-for="item in filterStore.yearItems" :key="item" class="filter__item" :class="{ selected: filterStore.selectedYears.includes(item) }" @click="filterStore.toggleYear(item)">
           {{ item }}
         </div>
       </div>
     </div>
 
     <div class="filter__wrapper">
-      <button class="filter__btn" :class="{ active: activeFilter === 'genre' }" @click="toggleFilter('genre')">
+      <button class="filter__btn" :class="{ active: filterStore.activeFilter === 'genre' }" @click="filterStore.setActiveFilter('genre')">
         жанру
-        <span v-if="selectedGenres.length" class="badge">{{ selectedGenres.length }}</span>
+        <span v-if="filterStore.selectedGenres.length" class="badge">{{ filterStore.selectedGenres.length }}</span>
       </button>
-      <div v-if="activeFilter === 'genre'" class="filter__dropdown">
-        <div v-for="item in genreItems" :key="item" class="filter__item" :class="{ selected: selectedGenres.includes(item) }" @click="toggleGenre(item)">
+      <div v-if="filterStore.activeFilter === 'genre'" class="filter__dropdown">
+        <div v-for="item in filterStore.genreItems" :key="item" class="filter__item" :class="{ selected: filterStore.selectedGenres.includes(item) }" @click="filterStore.toggleGenre(item)">
           {{ item }}
         </div>
       </div>
@@ -41,56 +41,9 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
-import { useTracks } from '@/composables/useTracks'
+import { useFiltersStore } from '~/stores/filters'
 
-const { tracks } = useTracks()
-
-const activeFilter = ref(null)
-const selectedAuthors = ref([])
-const selectedGenres = ref([])
-const selectedYears = ref([])
-
-const toggleFilter = (filter) => {
-  activeFilter.value = activeFilter.value === filter ? null : filter
-}
-
-const authorItems = computed(() => {
-  const set = new Set()
-  tracks.value.forEach(t => t.author && set.add(t.author))
-  return Array.from(set).sort()
-})
-
-const yearItems = computed(() => {
-  const set = new Set()
-  tracks.value.forEach(t => {
-    const year = t.release_date?.split('-')[0]
-    if (year) set.add(year)
-  })
-  return Array.from(set).sort((a, b) => b - a)
-})
-
-const genreItems = computed(() => {
-  const set = new Set()
-  tracks.value.forEach(t => {
-    if (Array.isArray(t.genre)) t.genre.forEach(g => set.add(g.toLowerCase()))
-    else if (t.genre) set.add(t.genre.toLowerCase())
-  })
-  return Array.from(set).sort()
-})
-
-const toggleAuthor = (item) => {
-  const idx = selectedAuthors.value.indexOf(item)
-  idx > -1 ? selectedAuthors.value.splice(idx, 1) : selectedAuthors.value.push(item)
-}
-const toggleGenre = (item) => {
-  const idx = selectedGenres.value.indexOf(item)
-  idx > -1 ? selectedGenres.value.splice(idx, 1) : selectedGenres.value.push(item)
-}
-const toggleYear = (item) => {
-  const idx = selectedYears.value.indexOf(item)
-  idx > -1 ? selectedYears.value.splice(idx, 1) : selectedYears.value.push(item)
-}
+const filterStore = useFiltersStore()
 </script>
 
 <style scoped>
