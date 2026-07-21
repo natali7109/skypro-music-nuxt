@@ -1,9 +1,9 @@
 <template>
-  <div class="playlist__item" @click="$emit('select', track)">
+  <div class="playlist__item" @click="selectTrack">
     <div class="playlist__track">
-      <!-- Название + обложка -->
       <div class="track__title">
-        <div class="track__title-image">
+        <div class="track__cover-wrapper">
+          <!-- Обложка -->
           <img 
             v-if="coverUrl" 
             :src="coverUrl" 
@@ -13,21 +13,24 @@
           <svg v-else class="track__title-svg" width="18" height="17" viewBox="0 0 18 17">
             <path d="M8 2L8 15M12 4L12 13M4 6L4 11M16 6L16 11" stroke="#4e4e4e" stroke-width="2"/>
           </svg>
+          <!-- Индикатор текущего трека (точка) -->
+          <div 
+            v-if="isActive" 
+            class="track__indicator" 
+            :class="{ 'pulsing': isActive && isPlaying }"
+          ></div>
         </div>
         <span class="track__title-link">{{ track.name }}</span>
       </div>
 
-      <!-- Исполнитель -->
       <div class="track__author">
         <span class="track__author-link">{{ track.author }}</span>
       </div>
 
-      <!-- Альбом -->
       <div class="track__album">
         <span class="track__album-link">{{ track.album || '—' }}</span>
       </div>
 
-      <!-- Сердечко + длительность -->
       <div class="track__time">
         <button class="track__like-btn" @click.stop="toggleLike" :title="isLiked ? 'Убрать лайк' : 'Поставить лайк'">
           <svg v-if="!isLiked" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -45,6 +48,7 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue'
+import { usePlayerStore } from '~/stores/player'
 
 const props = defineProps({
   track: {
@@ -53,11 +57,25 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(['select'])
+const playerStore = usePlayerStore()
 
+// === ПЛЕЕР ===
+const selectTrack = () => {
+  // Используем playTrack из useAudioPlayer, но мы не можем импортировать его здесь, потому что это composable
+  // Поэтому мы будем использовать playerStore.setCurrentTrack, а в PlayerBar сработает watch
+  playerStore.setCurrentTrack(props.track)
+}
+
+// === ИНДИКАТОР ТЕКУЩЕГО ТРЕКА ===
+const isActive = computed(() => {
+  return playerStore.currentTrack && playerStore.currentTrack._id === props.track._id
+})
+
+const isPlaying = computed(() => playerStore.isPlaying)
+
+// === ЛАЙКИ ===
 const isLiked = ref(false)
 
-// Получение URL обложки из разных форматов
 const coverUrl = computed(() => {
   const logo = props.track.logo
   if (!logo) return null
@@ -99,13 +117,14 @@ const formatDuration = (seconds) => {
   width: 100%;
   display: block;
   margin-bottom: 12px;
+  
 }
 
 .playlist__track {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 16px;
+  
   cursor: pointer;
   border-radius: 8px;
   transition: background 0.2s;
@@ -119,21 +138,21 @@ const formatDuration = (seconds) => {
 .track__title {
   display: flex;
   align-items: center;
-  width: 30%;
+  width: 447px;
+  gap: 12px;
 }
 
-.track__title-image {
+.track__cover-wrapper {
+  position: relative;
   width: 51px;
   height: 51px;
-  padding: 16px;
+  flex-shrink: 0;
+  border-radius: 4px;
+  overflow: hidden;
   background: #313131;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-right: 17px;
-  border-radius: 4px;
-  overflow: hidden;
-  flex-shrink: 0;
 }
 
 .track__cover {
@@ -149,6 +168,36 @@ const formatDuration = (seconds) => {
   stroke: #4e4e4e;
 }
 
+/* ===== ИНДИКАТОР ТЕКУЩЕГО ТРЕКА ===== */
+.track__indicator {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 14px;         
+  height: 14px;
+  border-radius: 50%;
+  background: #7334ea;
+  border: 1.5px solid #1a1a1a;
+  box-shadow: 0 0 6px rgba(115, 52, 234, 0.6);
+  transition: transform 0.2s;
+}
+
+.pulsing {
+  animation: pulse 1s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.4);
+    opacity: 0.7;
+  }
+}
+
 .track__title-link {
   font-size: 16px;
   line-height: 24px;
@@ -157,7 +206,7 @@ const formatDuration = (seconds) => {
 }
 
 .track__author {
-  width: 25%;
+  width: 321px;
   display: flex;
   justify-content: flex-start;
 }
@@ -165,14 +214,12 @@ const formatDuration = (seconds) => {
 .track__author-link {
   font-size: 16px;
   line-height: 24px;
-  color: #ffffff;
+  color: #b3b3b3;
   text-decoration: none;
 }
 
 .track__album {
-  width: 25%;
-  display: flex;
-  justify-content: flex-start;
+  width: 245px;
 }
 
 .track__album-link {
@@ -183,11 +230,9 @@ const formatDuration = (seconds) => {
 }
 
 .track__time {
-  width: 20%;
   display: flex;
   align-items: center;
-  justify-content: flex-end;
-  gap: 6px;
+  gap: 8px;
 }
 
 .track__like-btn {
@@ -195,25 +240,18 @@ const formatDuration = (seconds) => {
   border: none;
   cursor: pointer;
   padding: 0;
+  color: #696969;
+  transition: color 0.2s;
   display: flex;
   align-items: center;
-  justify-content: center;
-  color: #696969;
-  transition: color 0.2s, transform 0.2s;
 }
 
 .track__like-btn:hover {
   color: #ff6b6b;
-  transform: scale(1.1);
 }
 
 .track__like-btn .liked {
   color: #ff6b6b;
-}
-
-.track__like-btn svg {
-  width: 16px;
-  height: 16px;
 }
 
 .track__time-text {
