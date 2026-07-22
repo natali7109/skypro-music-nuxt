@@ -4,7 +4,9 @@
       <span class="col-track">ТРЕК</span>
       <span class="col-artist">ИСПОЛНИТЕЛЬ</span>
       <span class="col-album">АЛЬБОМ</span>
-      <span class="col-time">⏱️</span>
+      <span class="col-time">
+  <img src="/img/icon/watch.svg" alt="Длительность" class="col-time-icon" />
+</span>
     </div>
 
     <div v-if="loading" class="skeleton">Загрузка...</div>
@@ -15,16 +17,16 @@
         v-for="track in filtered"
         :key="track._id"
         :track="track"
-        @select="$emit('select', track)"
       />
     </div>
   </div>
 </template>
 
 <script setup>
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, watch } from 'vue'
 import { useTracks } from '@/composables/useTracks'
-import Track from './Track.vue'   
+import { usePlayerStore } from '~/stores/player'
+import Track from './Track.vue'
 
 const props = defineProps({
   searchQuery: String,
@@ -32,10 +34,10 @@ const props = defineProps({
 })
 
 const { tracks, loading, error, fetchTracks } = useTracks()
+const playerStore = usePlayerStore()
 
 const filtered = computed(() => {
   let list = [...tracks.value]
-
   if (props.searchQuery) {
     const q = props.searchQuery.toLowerCase()
     list = list.filter(t =>
@@ -43,17 +45,25 @@ const filtered = computed(() => {
       t.author?.toLowerCase().includes(q)
     )
   }
-
   if (props.sortBy === 'newest') {
     list.sort((a, b) => new Date(b.release_date) - new Date(a.release_date))
   } else if (props.sortBy === 'oldest') {
     list.sort((a, b) => new Date(a.release_date) - new Date(b.release_date))
   }
-
   return list
 })
 
-onMounted(fetchTracks)
+// Следим за изменением списка треков и обновляем плейлист в сторе
+watch(tracks, (newTracks) => {
+  if (newTracks && newTracks.length) {
+    
+    playerStore.setPlaylist(newTracks)
+  }
+}, { immediate: true, deep: true })
+
+onMounted(() => {
+  fetchTracks()
+})
 </script>
 
 <style scoped>
