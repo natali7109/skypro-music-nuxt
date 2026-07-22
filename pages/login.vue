@@ -1,31 +1,34 @@
 <template>
-  <div class="login-page">
-    <div class="login-container">
-      <h1>Вход</h1>
-      <form @submit.prevent="handleLogin">
-        <div class="form-group">
-          <label for="email">Email</label>
-          <input id="email" v-model="email" type="email" required placeholder="example@mail.ru" />
-        </div>
-        <div class="form-group">
-          <label for="password">Пароль</label>
-          <input id="password" v-model="password" type="password" required placeholder="••••••••" />
-        </div>
-        <button type="submit" :disabled="loading">
+  <div class="auth-form">
+    <img src="/img/logo_modal.png" alt="skypro" class="logo-img" />
+    
+    <form @submit.prevent="handleLogin">
+      <div class="form-group">
+        <input id="email" v-model="email" type="email" required placeholder="Почта" />
+      </div>
+      <div class="form-group">
+        <input id="password" v-model="password" type="password" required placeholder="Пароль" />
+      </div>
+
+      <div class="button-group">
+        <button type="submit" :disabled="loading" class="btn btn-primary">
           {{ loading ? 'Загрузка...' : 'Войти' }}
         </button>
-        <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
-        <p class="register-link">
-  Нет аккаунта? <NuxtLink to="/register">Зарегистрироваться</NuxtLink>
-</p>
-      </form>
-    </div>
+        <NuxtLink to="/register" class="btn btn-secondary">
+          Зарегистрироваться
+        </NuxtLink>
+      </div>
+
+      <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
+    </form>
   </div>
 </template>
 
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+
+definePageMeta({ layout: 'auth' })
 
 const router = useRouter()
 const email = ref('')
@@ -38,7 +41,6 @@ const handleLogin = async () => {
   loading.value = true
 
   try {
-    // 1. Логин (проверка пользователя)
     const loginResponse = await fetch('https://webdev-music-003b5b991590.herokuapp.com/user/login/', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -47,14 +49,12 @@ const handleLogin = async () => {
     const loginData = await loginResponse.json()
 
     if (!loginResponse.ok) {
-      // Если ошибка — показываем страницу ошибки через showError
       throw createError({
         statusCode: loginResponse.status,
         message: loginData.message || 'Неверный email или пароль'
       })
     }
 
-    // 2. Получение токена
     const tokenResponse = await fetch('https://webdev-music-003b5b991590.herokuapp.com/user/token/', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -69,21 +69,14 @@ const handleLogin = async () => {
       })
     }
 
-    // Сохраняем токен в localStorage
     localStorage.setItem('token', tokenData.access)
-    // Если нужно сохранить refresh токен
-    if (tokenData.refresh) {
-      localStorage.setItem('refreshToken', tokenData.refresh)
-    }
+    if (tokenData.refresh) localStorage.setItem('refreshToken', tokenData.refresh)
 
-    // Редирект на главную без перезагрузки
     router.push('/')
   } catch (err) {
     if (err.statusCode) {
-      // showError от Nuxt — покажет страницу ошибки
       showError(err)
     } else {
-      // Ошибка сети или другая
       errorMessage.value = err.message || 'Произошла ошибка при входе'
     }
   } finally {
@@ -93,93 +86,96 @@ const handleLogin = async () => {
 </script>
 
 <style scoped>
-.login-page {
+.auth-form {
+  width: 368px;                    
+  padding: 40px 24px;             
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
   display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  background: #181818;
-  padding: 20px;
+  flex-direction: column;
+  align-items: center;            
 }
 
-.login-container {
-  background: #2a2a2a;
-  padding: 40px 32px;
-  border-radius: 12px;
-  width: 100%;
-  max-width: 380px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+.logo-img {
+  width: 120px;                  
+  height: 41px;                 
+  margin: 0 auto 12px;           
+  display: block;
+  object-fit: contain;           
 }
 
-.login-container h1 {
-  color: #ffffff;
-  text-align: center;
-  margin-bottom: 28px;
-  font-weight: 600;
-  font-size: 28px;
+form {
+  width: 100%;                  
 }
+
+
 
 .form-group {
-  margin-bottom: 18px;
+  margin-bottom: 20px;
+   
 }
-
-.form-group label {
-  display: block;
-  color: #b3b3b3;
-  font-size: 14px;
-  margin-bottom: 6px;
-}
-
 .form-group input {
   width: 100%;
-  padding: 10px 14px;
-  border-radius: 8px;
-  border: 1px solid #3a3a3a;
-  background: #1a1a1a;
-  color: #ffffff;
+  border: none;
+  border-bottom: 1px solid #d0d0d0;
+  padding: 8px 0;
   font-size: 16px;
   outline: none;
-  transition: border 0.2s;
+  background: transparent;
+  color: #1a1a1a;
+  transition: border-color 0.2s;
 }
-
 .form-group input:focus {
-  border-color: #7334ea;
+  border-bottom-color: #ad61ff;
+}
+.form-group input::placeholder {
+  color: #a0a0a0;
 }
 
-button {
+.button-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.btn {
+  display: block;
   width: 100%;
   padding: 12px;
-  background: #7334ea;
   border: none;
   border-radius: 8px;
-  color: #ffffff;
-  font-weight: 600;
   font-size: 16px;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-button:hover:not(:disabled) {
-  background: #5a28c7;
-}
-
-button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.register-link {
-  margin-top: 16px;
-  color: #b3b3b3;
+  font-weight: 600;
   text-align: center;
-  font-size: 14px;
-}
-.register-link a {
-  color: #7334ea;
   text-decoration: none;
+  cursor: pointer;
+  transition: background 0.25s, color 0.25s, border-color 0.25s;
 }
-.register-link a:hover {
-  text-decoration: underline;
+
+.btn-primary {
+  background: #ad61ff;
+  color: #ffffff;
+  border: 1px solid #ad61ff;
+}
+
+.btn-secondary {
+  background: #ffffff;
+  color: #1a1a1a;
+  border: 1px solid #d0d0d0;
+}
+
+/* При наведении на любую кнопку – меняем стили обеих */
+.button-group:hover .btn-primary {
+  background: #ffffff;
+  color: #1a1a1a;
+  border-color: #d0d0d0;
+}
+.button-group:hover .btn-secondary {
+  background: #ad61ff;
+  color: #ffffff;
+  border-color: #ad61ff;
 }
 
 .error {
@@ -187,5 +183,12 @@ button:disabled {
   margin-top: 14px;
   text-align: center;
   font-size: 14px;
+}
+.logo-img {
+align-items: center;
+  display: block;
+  width: 180px;
+  height: auto;
+  margin-bottom: 12px;
 }
 </style>

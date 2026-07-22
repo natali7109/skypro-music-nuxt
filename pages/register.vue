@@ -1,29 +1,26 @@
 <template>
-  <div class="register-page">
-    <div class="register-container">
-      <h1>Регистрация</h1>
-      <form @submit.prevent="handleRegister">
-        <div class="form-group">
-          <label for="name">Имя</label>
-          <input id="name" v-model="name" type="text" required placeholder="Иван Иванов" />
-        </div>
-        <div class="form-group">
-          <label for="email">Email</label>
-          <input id="email" v-model="email" type="email" required placeholder="example@mail.ru" />
-        </div>
-        <div class="form-group">
-          <label for="password">Пароль</label>
-          <input id="password" v-model="password" type="password" required placeholder="••••••••" />
-        </div>
-        <button type="submit" :disabled="loading">
+  <div class="auth-form">
+    <img src="/img/logo_modal.png" alt="skypro" class="logo-img" />
+    
+    <form @submit.prevent="handleRegister">
+      <div class="form-group">
+        <input id="email" v-model="email" type="email" required placeholder="Почта" />
+      </div>
+      <div class="form-group">
+        <input id="password" v-model="password" type="password" required placeholder="Пароль" />
+      </div>
+
+      <div class="button-group">
+        <button type="submit" :disabled="loading" class="btn btn-primary">
           {{ loading ? 'Регистрация...' : 'Зарегистрироваться' }}
         </button>
-        <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
-        <p class="login-link">
-          Уже есть аккаунт? <NuxtLink to="/login">Войти</NuxtLink>
-        </p>
-      </form>
-    </div>
+        <NuxtLink to="/login" class="btn btn-secondary">
+          Войти
+        </NuxtLink>
+      </div>
+
+      <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
+    </form>
   </div>
 </template>
 
@@ -31,8 +28,9 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
+definePageMeta({ layout: 'auth' })
+
 const router = useRouter()
-const name = ref('')
 const email = ref('')
 const password = ref('')
 const loading = ref(false)
@@ -43,11 +41,12 @@ const handleRegister = async () => {
   loading.value = true
 
   try {
+    // Отправляем username = email (так как поле имени убрано)
     const response = await fetch('https://webdev-music-003b5b991590.herokuapp.com/user/signup/', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        username: name.value,
+        username: email.value,
         email: email.value,
         password: password.value
       })
@@ -61,7 +60,7 @@ const handleRegister = async () => {
       })
     }
 
-    // После успешной регистрации — сразу логиним пользователя
+    // Автоматический вход после регистрации
     const loginResponse = await fetch('https://webdev-music-003b5b991590.herokuapp.com/user/login/', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -98,79 +97,92 @@ const handleRegister = async () => {
 </script>
 
 <style scoped>
-.register-page {
+.auth-form {
+  width: 368px;                    
+  padding: 40px 24px;             
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
   display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  background: #181818;
-  padding: 20px;
+  flex-direction: column;
+  align-items: center;            
 }
 
-.register-container {
-  background: #2a2a2a;
-  padding: 40px 32px;
-  border-radius: 12px;
-  width: 100%;
-  max-width: 380px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+.logo-img {
+  width: 120px;                  
+  height: 41px;                 
+  margin: 0 auto 12px;           
+  display: block;
+  object-fit: contain;           
 }
-
-.register-container h1 {
-  color: #ffffff;
-  text-align: center;
-  margin-bottom: 28px;
-  font-weight: 600;
-  font-size: 28px;
+form {
+  width: 100%;                  
 }
 
 .form-group {
-  margin-bottom: 18px;
+margin-top: 20px;
+  margin-bottom: 20px;
 }
-
-.form-group label {
-  display: block;
-  color: #b3b3b3;
-  font-size: 14px;
-  margin-bottom: 6px;
-}
-
 .form-group input {
   width: 100%;
-  padding: 10px 14px;
-  border-radius: 8px;
-  border: 1px solid #3a3a3a;
-  background: #1a1a1a;
-  color: #ffffff;
+  border: none;
+  border-bottom: 1px solid #d0d0d0;
+  padding: 8px 0;
   font-size: 16px;
   outline: none;
-  transition: border 0.2s;
+  background: transparent;
+  color: #1a1a1a;
+  transition: border-color 0.2s;
 }
-
 .form-group input:focus {
-  border-color: #7334ea;
+  border-bottom-color: #ad61ff;
+}
+.form-group input::placeholder {
+  color: #a0a0a0;
 }
 
-button {
+.button-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.btn {
+  display: block;
   width: 100%;
   padding: 12px;
-  background: #7334ea;
   border: none;
   border-radius: 8px;
-  color: #ffffff;
-  font-weight: 600;
   font-size: 16px;
+  font-weight: 600;
+  text-align: center;
+  text-decoration: none;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: background 0.25s, color 0.25s, border-color 0.25s;
 }
 
-button:hover:not(:disabled) {
-  background: #5a28c7;
+.btn-primary {
+  background: #ad61ff;
+  color: #ffffff;
+  border: 1px solid #ad61ff;
 }
 
-button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+.btn-secondary {
+  background: #ffffff;
+  color: #1a1a1a;
+  border: 1px solid #d0d0d0;
+}
+
+.button-group:hover .btn-primary {
+  background: #ffffff;
+  color: #1a1a1a;
+  border-color: #d0d0d0;
+}
+.button-group:hover .btn-secondary {
+  background: #ad61ff;
+  color: #ffffff;
+  border-color: #ad61ff;
 }
 
 .error {
@@ -178,21 +190,5 @@ button:disabled {
   margin-top: 14px;
   text-align: center;
   font-size: 14px;
-}
-
-.login-link {
-  margin-top: 16px;
-  color: #b3b3b3;
-  text-align: center;
-  font-size: 14px;
-}
-
-.login-link a {
-  color: #7334ea;
-  text-decoration: none;
-}
-
-.login-link a:hover {
-  text-decoration: underline;
 }
 </style>
