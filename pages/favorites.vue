@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2 class="centerblock__h2">Избранные треки</h2>
+    <h2 class="centerblock__h2">Мои треки</h2>
 
     <!-- Состояние загрузки -->
     <div v-if="tracksStore.loading" class="skeleton-wrapper">
@@ -26,7 +26,9 @@
         <span class="col-track">ТРЕК</span>
         <span class="col-artist">ИСПОЛНИТЕЛЬ</span>
         <span class="col-album">АЛЬБОМ</span>
-        <span class="col-time">ДЛИТЕЛЬНОСТЬ</span>
+        <span class="col-time">
+  <img src="/img/icon/watch.svg" alt="Длительность" class="col-time-icon" />
+</span>
       </div>
 
       <div class="playlist__list">
@@ -118,5 +120,31 @@ onMounted(() => {
   padding: 40px;
   text-align: center;
   font-size: 18px;
+}
+
+/* ===== СТИЛИ ДЛЯ ЗАГОЛОВКА ТАБЛИЦЫ (как в Playlist.vue) ===== */
+.playlist__header {
+  display: flex;
+  padding: 10px 0;
+  border-bottom: 1px solid #4e4e4e;
+  color: #696969;
+  font-size: 13px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.col-track { width: 680px; }
+.col-artist { width: 560px; }
+.col-album { width: 520px; }
+.col-time {
+  width: 20px;
+  text-align: right;
+}
+
+.col-time-icon {
+  width: 18px;
+  height: 18px;
+  display: block;
+  margin: 0 auto;
 }
 </style>

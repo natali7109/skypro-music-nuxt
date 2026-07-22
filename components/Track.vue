@@ -231,6 +231,8 @@ const formatDuration = (seconds) => {
   display: flex;
   align-items: center;
   gap: 8px;
+      
+  justify-content: flex-end; 
 }
 
 .track__like-btn {

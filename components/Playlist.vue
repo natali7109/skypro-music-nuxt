@@ -118,10 +118,13 @@ const filteredTracks = computed(() => {
   text-transform: uppercase;
 }
 
-.col-track { width: 30%; }
-.col-artist { width: 30%; }
-.col-album { width: 30%; }
-.col-time { width: 10%; text-align: right; }
+.col-track { width: 680px; }
+.col-artist { width: 560px; }
+.col-album { width: 520px; }
+.col-time {
+  width: 20px;
+  text-align: right;
+}
 
 .skeleton {
   color: #888;

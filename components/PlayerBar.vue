@@ -11,38 +11,23 @@
         <div class="bar__player">
           <div class="player__controls">
             <button class="player__btn" @click="prevTrack" title="Предыдущий">
-              <svg width="24" height="20" viewBox="0 0 15 14">
-                <path d="M13 12L3 7L13 2V12Z" stroke="currentColor" stroke-width="2"/>
-                <path d="M2 2V12" stroke="currentColor" stroke-width="2"/>
-              </svg>
+              <img src="/img/icon/prev.svg" alt="Prev" class="player__icon" />
             </button>
             <button class="player__btn" @click="togglePlay" :title="playerStore.isPlaying ? 'Пауза' : 'Воспроизвести'">
-              <svg width="22" height="20" viewBox="0 0 22 20">
-                <path v-if="!playerStore.isPlaying" d="M0 0L22 10L0 20V0Z" fill="currentColor"/>
-                <rect v-else x="0" y="0" width="7" height="20" fill="currentColor"/>
-                <rect x="14" y="0" width="7" height="20" fill="currentColor"/>
-              </svg>
+              <img
+                :src="playerStore.isPlaying ? '/img/icon/pause.svg' : '/img/icon/play.svg'"
+                alt="Play/Pause"
+                class="player__icon"
+              />
             </button>
             <button class="player__btn" @click="nextTrack" title="Следующий">
-              <svg width="24" height="20" viewBox="0 0 15 14">
-                <path d="M2 12L12 7L2 2V12Z" stroke="currentColor" stroke-width="2"/>
-                <path d="M13 2V12" stroke="currentColor" stroke-width="2"/>
-              </svg>
+              <img src="/img/icon/next.svg" alt="Next" class="player__icon" />
             </button>
             <button class="player__btn" @click="toggleRepeat" :class="{ active: playerStore.repeat }" title="Повтор">
-              <svg width="24" height="20" viewBox="0 0 18 12">
-                <path d="M4 2L1 5L4 8" stroke="currentColor" stroke-width="2" fill="none"/>
-                <path d="M17 5L14 2L14 8" stroke="currentColor" stroke-width="2" fill="none"/>
-                <path d="M1 5H17" stroke="currentColor" stroke-width="2"/>
-              </svg>
+              <img src="/img/icon/repeat.svg" alt="Repeat" class="player__icon" />
             </button>
             <button class="player__btn" @click="toggleShuffle" :class="{ active: playerStore.shuffle }" title="Перемешать">
-              <svg width="24" height="20" viewBox="0 0 19 12">
-                <path d="M1 2H5L8 5" stroke="currentColor" stroke-width="2" fill="none"/>
-                <path d="M18 10H14L11 7" stroke="currentColor" stroke-width="2" fill="none"/>
-                <path d="M18 2H14L11 5" stroke="currentColor" stroke-width="2" fill="none"/>
-                <path d="M1 10H5L8 7" stroke="currentColor" stroke-width="2" fill="none"/>
-              </svg>
+              <img src="/img/icon/shuffle.svg" alt="Shuffle" class="player__icon" />
             </button>
           </div>
 
@@ -212,7 +197,7 @@ const toggleLike = () => {
 .player__controls {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 24px;
   flex-shrink: 0;
 }
 
