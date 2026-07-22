@@ -286,7 +286,7 @@ const toggleLike = () => {
 .track-play__title-row {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 24px;
 }
 
 .track-play__author {
@@ -311,11 +311,11 @@ const toggleLike = () => {
 }
 
 .track-play__like-btn:hover {
-  color: #ff6b6b;
+  color: #6c4c96;
 }
 
 .track-play__like-btn .liked {
-  color: #ff6b6b;
+  color: #6c4c96;
 }
 
 .track-play__album {

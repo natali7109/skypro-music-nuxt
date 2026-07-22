@@ -2,21 +2,25 @@
   <div>
     <h2 class="centerblock__h2">Избранные треки</h2>
 
-    <div v-if="loading" class="skeleton-wrapper">
+    <!-- Состояние загрузки -->
+    <div v-if="tracksStore.loading" class="skeleton-wrapper">
       <div v-for="n in 5" :key="n" class="skeleton-item">
         <div class="skeleton-line"></div>
         <div class="skeleton-line short"></div>
       </div>
     </div>
 
-    <div v-else-if="error" class="error-message">
-      {{ error }}
+    <!-- Ошибка -->
+    <div v-else-if="tracksStore.error" class="error-message">
+      {{ tracksStore.error }}
     </div>
 
+    <!-- Нет избранных -->
     <div v-else-if="!favoriteTracks.length" class="empty-message">
       У вас пока нет избранных треков
     </div>
 
+    <!-- Список избранных -->
     <div v-else>
       <div class="playlist__header">
         <span class="col-track">ТРЕК</span>
@@ -38,38 +42,19 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { computed, onMounted } from 'vue'
 import Track from '@/components/Track.vue'
 import { usePlayerStore } from '~/stores/player'
 import { useFavoritesStore } from '~/stores/favorites'
+import { useTracksStore } from '~/stores/tracks'
 
+const tracksStore = useTracksStore()
 const playerStore = usePlayerStore()
 const favoritesStore = useFavoritesStore()
 
-const allTracks = ref([])
-const loading = ref(true)
-const error = ref(null)
-
-const loadTracks = async () => {
-  loading.value = true
-  error.value = null
-  try {
-    const response = await fetch('https://webdev-music-003b5b991590.herokuapp.com/catalog/track/all/')
-    if (!response.ok) {
-      throw new Error('Не удалось загрузить треки')
-    }
-    const result = await response.json()
-    allTracks.value = result.data || []
-  } catch (err) {
-    error.value = err.message
-  } finally {
-    loading.value = false
-  }
-}
-
+// Фильтруем избранные треки из общего списка
 const favoriteTracks = computed(() => {
-  // isLiked работает с пустым массивом, если ids не загружен, но на сервере ids пустой – ок
-  return allTracks.value.filter(track => favoritesStore.isLiked(track._id))
+  return tracksStore.allTracks.filter(track => favoritesStore.isLiked(track._id))
 })
 
 const selectTrack = (track) => {
@@ -77,8 +62,7 @@ const selectTrack = (track) => {
 }
 
 onMounted(() => {
-  favoritesStore.load() // ← загружаем из localStorage только на клиенте
-  loadTracks()
+  favoritesStore.load() // загружаем лайки из localStorage
 })
 </script>
 

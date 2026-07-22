@@ -59,10 +59,8 @@ const props = defineProps({
 
 const playerStore = usePlayerStore()
 
-// === ПЛЕЕР ===
+// === ВЫБОР ТРЕКА (БЕЗ СНЯТИЯ) ===
 const selectTrack = () => {
-  // Используем playTrack из useAudioPlayer, но мы не можем импортировать его здесь, потому что это composable
-  // Поэтому мы будем использовать playerStore.setCurrentTrack, а в PlayerBar сработает watch
   playerStore.setCurrentTrack(props.track)
 }
 
@@ -247,11 +245,11 @@ const formatDuration = (seconds) => {
 }
 
 .track__like-btn:hover {
-  color: #ff6b6b;
+  color: #565496;
 }
 
 .track__like-btn .liked {
-  color: #ff6b6b;
+  color: #565496;
 }
 
 .track__time-text {

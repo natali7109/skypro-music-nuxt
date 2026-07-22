@@ -2,6 +2,7 @@
   <div class="filter__row">
     <span class="filter__title">Искать по:</span>
 
+    <!-- Фильтр по исполнителю -->
     <div class="filter__wrapper">
       <button class="filter__btn" :class="{ active: filterStore.activeFilter === 'author' }" @click="filterStore.setActiveFilter('author')">
         исполнителю
@@ -14,18 +15,25 @@
       </div>
     </div>
 
+    <!-- Фильтр по году выпуска (сортировка) -->
     <div class="filter__wrapper">
       <button class="filter__btn" :class="{ active: filterStore.activeFilter === 'year' }" @click="filterStore.setActiveFilter('year')">
         году выпуска
-        <span v-if="filterStore.selectedYears.length" class="badge">{{ filterStore.selectedYears.length }}</span>
       </button>
       <div v-if="filterStore.activeFilter === 'year'" class="filter__dropdown">
-        <div v-for="item in filterStore.yearItems" :key="item" class="filter__item" :class="{ selected: filterStore.selectedYears.includes(item) }" @click="filterStore.toggleYear(item)">
-          {{ item }}
+        <div
+          v-for="option in sortOptions"
+          :key="option.value"
+          class="filter__item"
+          :class="{ selected: filterStore.sortBy === option.value }"
+          @click="selectSort(option.value)"
+        >
+          {{ option.label }}
         </div>
       </div>
     </div>
 
+    <!-- Фильтр по жанру (динамический) -->
     <div class="filter__wrapper">
       <button class="filter__btn" :class="{ active: filterStore.activeFilter === 'genre' }" @click="filterStore.setActiveFilter('genre')">
         жанру
@@ -44,6 +52,18 @@
 import { useFiltersStore } from '~/stores/filters'
 
 const filterStore = useFiltersStore()
+
+// Варианты сортировки по году
+const sortOptions = [
+  { label: 'По умолчанию', value: 'default' },
+  { label: 'Сначала новые', value: 'newest' },
+  { label: 'Сначала старые', value: 'oldest' }
+]
+
+const selectSort = (value) => {
+  filterStore.setSort(value)
+  filterStore.setActiveFilter(null) // закрываем выпадающее окно
+}
 </script>
 
 <style scoped>
@@ -99,13 +119,24 @@ const filterStore = useFiltersStore()
   left: 0;
   margin-top: 6px;
   background: #2a2a2a;
-  border-radius: 8px;
+  border-radius: 12px;
   padding: 6px;
-  max-height: 200px;
+  width: 248px;
+  max-height: 305px;
   overflow-y: auto;
   z-index: 10;
-  min-width: 160px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+.filter__dropdown::-webkit-scrollbar {
+  width: 4px;
+}
+.filter__dropdown::-webkit-scrollbar-track {
+  background: #2a2a2a;
+}
+.filter__dropdown::-webkit-scrollbar-thumb {
+  background: #7334ea;
+  border-radius: 4px;
 }
 
 .filter__item {
@@ -114,11 +145,20 @@ const filterStore = useFiltersStore()
   cursor: pointer;
   border-radius: 4px;
   transition: 0.2s;
+  font-size: 14px;
 }
+
 .filter__item:hover {
   background: #3a3a3a;
 }
+
 .filter__item.selected {
-  background: #7334ea;
+  color: #7334ea;
+  text-decoration: underline;
+  background: transparent;
+}
+
+.filter__item.selected:hover {
+  background: rgba(115, 52, 234, 0.1);
 }
 </style>

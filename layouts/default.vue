@@ -66,7 +66,8 @@
         </div>
       </div>
 
-      <PlayerBar :current-track="currentTrack" />
+      <!-- ПЛЕЕР (скрыт, пока нет трека) -->
+      <PlayerBar v-if="currentTrack" :current-track="currentTrack" />
     </div>
   </div>
 </template>
@@ -76,8 +77,10 @@ import { ref, computed, onMounted } from 'vue'
 import Navbar from '@/components/Navbar.vue'
 import PlayerBar from '@/components/PlayerBar.vue'
 import { usePlayerStore } from '~/stores/player'
+import { useTracksStore } from '~/stores/tracks'
 import { useHead } from '#app'
 
+const tracksStore = useTracksStore()
 const playerStore = usePlayerStore()
 const searchQuery = ref('')
 const isMenuOpen = ref(false)
@@ -91,23 +94,24 @@ useHead({
 
 onMounted(() => {
   isMenuOpen.value = false
+  tracksStore.fetchTracks() // ← загружаем треки при старте
 })
 
 const toggleMenu = () => {
   isMenuOpen.value = !isMenuOpen.value
 }
 
-const updateSearch = () => {
-  // можно реализовать поиск позже
-}
+const updateSearch = () => {}
 
 const handleLogout = () => {
   localStorage.clear()
+  tracksStore.clearTracks() // ← очищаем при выходе
   window.location.href = '/login'
 }
 
 const currentTrack = computed(() => playerStore.currentTrack)
 </script>
+
 
 <style scoped>
 /* ===== ЛЕВОЕ МЕНЮ ===== */
@@ -198,14 +202,14 @@ const currentTrack = computed(() => playerStore.currentTrack)
   justify-content: space-between;
   padding: 12px 24px;
   background: #181818;
-  border-bottom: 1px solid #2a2a2a;
+ 
   margin-left: 244px;
 }
 
 .header__search {
   position: relative;
   flex: 1;
-  max-width: 800px;
+  max-width: 1293px;
 }
 
 .search__icon {
@@ -264,6 +268,7 @@ const currentTrack = computed(() => playerStore.currentTrack)
   gap: 40px;
   height: calc(100vh - 70px);
   overflow: hidden;
+  max-width: 100%;
 }
 
 .main__centerblock {
@@ -272,10 +277,12 @@ const currentTrack = computed(() => playerStore.currentTrack)
   padding-right: 20px;
 }
 
+
+
 /* ===== САЙДБАР ===== */
 .main__sidebar {
-  max-width: 418px;
-  padding: 20px 90px 20px 78px;
+  max-width: 450px;
+  padding: 20px 80px 20px 90px;
   overflow-y: auto;
 }
 

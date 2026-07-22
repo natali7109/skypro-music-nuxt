@@ -9,7 +9,9 @@
         <span class="col-track">ТРЕК</span>
         <span class="col-artist">ИСПОЛНИТЕЛЬ</span>
         <span class="col-album">АЛЬБОМ</span>
-        <span class="col-time">ДЛИТЕЛЬНОСТЬ</span>
+        <span class="col-time">
+  <img src="/img/icon/watch.svg" alt="Длительность" class="col-time-icon" />
+</span>
       </div>
 
       <div class="playlist__list">

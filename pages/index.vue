@@ -4,20 +4,20 @@
 
     <FilterControls />
 
-    <div v-if="pending" class="skeleton-wrapper">
+    <div v-if="tracksStore.loading" class="skeleton-wrapper">
       <div v-for="n in 10" :key="n" class="skeleton-item">
         <div class="skeleton-line"></div>
         <div class="skeleton-line short"></div>
       </div>
     </div>
 
-    <div v-else-if="error" class="error-message">
-      Не удалось загрузить треки: {{ error.message }}
+    <div v-else-if="tracksStore.error" class="error-message">
+      Не удалось загрузить треки: {{ tracksStore.error }}
     </div>
 
     <Playlist
       v-else
-      :tracks="tracks"
+      :tracks="tracksStore.allTracks"
       :search-query="filterStore.searchQuery"
       :sort-by="filterStore.sortBy"
       :selected-authors="filterStore.selectedAuthors"
@@ -29,31 +29,32 @@
 </template>
 
 <script setup>
-import { ref, watchEffect } from 'vue'
+import { watch, watchEffect } from 'vue'
 import FilterControls from '@/components/FilterControls.vue'
 import Playlist from '@/components/Playlist.vue'
 import { usePlayerStore } from '~/stores/player'
 import { useFiltersStore } from '~/stores/filters'
+import { useTracksStore } from '~/stores/tracks'
 
+const tracksStore = useTracksStore()
 const playerStore = usePlayerStore()
 const filterStore = useFiltersStore()
 
-const { data: tracks, pending, error } = await useAsyncData('tracks', async () => {
-  const response = await fetch('https://webdev-music-003b5b991590.herokuapp.com/catalog/track/all/')
-  if (!response.ok) {
-    throw new Error('Не удалось загрузить треки')
+// Когда треки загружены – сохраняем их в сторе фильтров и передаём в плеер
+watchEffect(() => {
+  if (tracksStore.allTracks.length) {
+    filterStore.setAllTracks(tracksStore.allTracks)
+    // Устанавливаем плейлист в плеер
+    playerStore.setPlaylist(tracksStore.allTracks)
+    console.log('📋 Плейлист передан в плеер, треков:', tracksStore.allTracks.length)
   }
-  const result = await response.json()
-  return result.data || []
 })
-
-// Сохраняем треки в стор фильтров
-filterStore.setAllTracks(tracks.value || [])
 
 const selectTrack = (track) => {
   playerStore.setCurrentTrack(track)
 }
 
+// Отладочный лог (можно убрать позже)
 watchEffect(() => {
   console.log('Фильтры изменились:', {
     search: filterStore.searchQuery,
@@ -64,6 +65,7 @@ watchEffect(() => {
   })
 })
 </script>
+
 
 <style scoped>
 .centerblock__h2 {
