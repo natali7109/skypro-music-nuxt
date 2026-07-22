@@ -22,7 +22,9 @@
         <span class="col-track">ТРЕК</span>
         <span class="col-artist">ИСПОЛНИТЕЛЬ</span>
         <span class="col-album">АЛЬБОМ</span>
-        <span class="col-time">ДЛИТЕЛЬНОСТЬ</span>
+        <span class="col-time">
+  <img src="/img/icon/watch.svg" alt="Длительность" class="col-time-icon" />
+</span>
       </div>
 
       <div class="playlist__list">
@@ -47,7 +49,7 @@ const route = useRoute()
 const playerStore = usePlayerStore()
 const categoryId = route.params.id
 
-// Определяем название категории (можно расширить)
+// Определяем название категории 
 const categoryName = computed(() => {
   // Здесь можно сделать маппинг, если нужно
   return categoryId.charAt(0).toUpperCase() + categoryId.slice(1)

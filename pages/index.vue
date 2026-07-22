@@ -40,11 +40,11 @@ const tracksStore = useTracksStore()
 const playerStore = usePlayerStore()
 const filterStore = useFiltersStore()
 
-// Когда треки загружены – сохраняем их в сторе фильтров и передаём в плеер
+ 
 watchEffect(() => {
   if (tracksStore.allTracks.length) {
     filterStore.setAllTracks(tracksStore.allTracks)
-    // Устанавливаем плейлист в плеер
+     
     playerStore.setPlaylist(tracksStore.allTracks)
     console.log('📋 Плейлист передан в плеер, треков:', tracksStore.allTracks.length)
   }

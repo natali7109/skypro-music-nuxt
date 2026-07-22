@@ -8,7 +8,7 @@ export const useFiltersStore = defineStore('filters', {
     selectedYears: [],
     sortBy: 'default',
     activeFilter: null,
-    allTracks: [] // ← добавляем хранилище для всех треков
+    allTracks: []  
   }),
 
   actions: {
@@ -50,7 +50,7 @@ export const useFiltersStore = defineStore('filters', {
   },
 
   getters: {
-    // Списки для фильтров (вычисляются из allTracks)
+     
     authorItems: (state) => {
       const set = new Set()
       state.allTracks.forEach(t => t.author && set.add(t.author))

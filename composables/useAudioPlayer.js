@@ -20,7 +20,7 @@ export function useAudioPlayer() {
     }
 
     try {
-      // Если тот же трек – переключаем паузу
+       
       if (playerStore.currentTrack && playerStore.currentTrack._id === track._id) {
         if (playerStore.isPlaying) {
           audio.pause()
@@ -51,7 +51,7 @@ export function useAudioPlayer() {
       playerStore.setPlaying(true)
     } catch (error) {
       if (error.name === 'AbortError') {
-        // Игнорируем – нормально
+         
         return
       }
       console.error('Ошибка воспроизведения:', error)
@@ -73,7 +73,7 @@ export function useAudioPlayer() {
       audio.play()
         .then(() => playerStore.setPlaying(true))
         .catch((err) => {
-          // Если трек ещё не загружен – пробуем через playTrack
+           
           if (err.name === 'NotSupportedError' || err.name === 'AbortError') {
             if (playerStore.currentTrack) {
               playTrack(playerStore.currentTrack)
@@ -144,7 +144,7 @@ export function useAudioPlayer() {
   const toggleRepeat = () => playerStore.toggleRepeat()
   const toggleShuffle = () => playerStore.toggleShuffle()
 
-  // Следим за сменой трека (автозапуск)
+   
   watch(() => playerStore.currentTrack, (newTrack, oldTrack) => {
     if (newTrack && newTrack._id !== oldTrack?._id) {
       const audio = playerStore.audioRef

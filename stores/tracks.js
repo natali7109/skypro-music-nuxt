@@ -10,7 +10,7 @@ export const useTracksStore = defineStore('tracks', {
 
   actions: {
     async fetchTracks() {
-      if (this.loaded) return // уже загружены
+      if (this.loaded) return  
       this.loading = true
       this.error = null
       try {

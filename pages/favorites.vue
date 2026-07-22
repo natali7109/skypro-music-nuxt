@@ -64,7 +64,7 @@ const selectTrack = (track) => {
 }
 
 onMounted(() => {
-  favoritesStore.load() // загружаем лайки из localStorage
+  favoritesStore.load()  
 })
 </script>
 
@@ -122,7 +122,7 @@ onMounted(() => {
   font-size: 18px;
 }
 
-/* ===== СТИЛИ ДЛЯ ЗАГОЛОВКА ТАБЛИЦЫ (как в Playlist.vue) ===== */
+ 
 .playlist__header {
   display: flex;
   padding: 10px 0;

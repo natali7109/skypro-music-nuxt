@@ -62,7 +62,7 @@ const sortOptions = [
 
 const selectSort = (value) => {
   filterStore.setSort(value)
-  filterStore.setActiveFilter(null) // закрываем выпадающее окно
+  filterStore.setActiveFilter(null)  
 }
 </script>
 
