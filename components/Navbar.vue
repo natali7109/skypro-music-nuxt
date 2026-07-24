@@ -103,11 +103,13 @@ const handleLogout = () => {
 
 .menu__list {
   padding: 18px 0 10px 0;
+  list-style: none;
 }
 
 .menu__item {
   padding: 5px 0;
   margin-bottom: 16px;
+  list-style: none;
 }
 
 .menu__link {

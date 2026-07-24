@@ -300,13 +300,13 @@ const currentTrack = computed(() => playerStore.currentTrack)
 /* ===== САЙДБАР ===== */
 .main__sidebar {
   max-width: 450px;
-  padding: 20px 80px 20px 90px;
+  padding: 20px 30px 20px 30px;
   overflow-y: auto;
 }
 
 .sidebar__block {
   height: 100%;
-  padding: 240px 0 0 0;
+  
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -351,5 +351,38 @@ const currentTrack = computed(() => playerStore.currentTrack)
   }
 }
 
+/* ===== АДАПТАЦИЯ ДЛЯ ПЛАНШЕТОВ ===== */
+@media (max-width: 1024px) {
+  .main__sidebar {
+    padding: 20px 10px 20px 10px;
+  }
+  .sidebar__item {
+    width: 200px;
+    height: 120px;
+  }
+  .sidebar__item:not(:last-child) {
+    margin-bottom: 20px;
+  }
+}
+
+/* ===== АДАПТАЦИЯ ДЛЯ ТЕЛЕФОНОВ ===== */
+@media (max-width: 768px) {
+  .main__nav,
+  .main__sidebar {
+    display: none;
+  }
+  .main__header,
+  .main {
+    margin-left: 0;
+  }
+  .main {
+    padding: 12px 12px;
+    gap: 0;
+    height: calc(100vh - 60px);
+  }
+  .main__centerblock {
+    padding-right: 0;
+  }
+}
 
 </style>
