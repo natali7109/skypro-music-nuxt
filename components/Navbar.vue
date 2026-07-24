@@ -1,11 +1,11 @@
 <template>
   <nav class="main__nav">
-    <!-- Логотип -->
-    <div class="nav__logo">
-      <ClientOnly>
+    <!-- Логотип (ссылка на Треки) -->
+    <NuxtLink to="/" class="nav__logo-link">
+      <div class="nav__logo">
         <img src="/logo.png" alt="Skypro.Music" class="logo__image" />
-      </ClientOnly>
-    </div>
+      </div>
+    </NuxtLink>
 
     <!-- Бургер -->
     <div class="nav__burger" @click="toggleMenu">
@@ -18,10 +18,10 @@
     <div class="nav__menu" v-if="isOpen">
       <ul class="menu__list">
         <li class="menu__item">
-          <a href="#" class="menu__link">Главное</a>
+          <NuxtLink to="/" class="menu__link">Главное</NuxtLink>
         </li>
         <li class="menu__item">
-           <a href="/favorites" class="menu__link">Мои треки</a>
+          <NuxtLink to="/favorites" class="menu__link">Мои треки</NuxtLink>
         </li>
         <li class="menu__item">
           <button class="menu__link logout-btn" @click="handleLogout">Выйти</button>

@@ -3,40 +3,15 @@ import { usePlayerStore } from '~/stores/player'
 
 export function useAudioPlayer() {
   const playerStore = usePlayerStore()
-  const isReady = ref(false)
 
-  // === БЕЗОПАСНОЕ ВОСПРОИЗВЕДЕНИЕ ===
-  const safePlay = async (audio) => {
-    if (!audio) return false
-    try {
-      await audio.play()
-      return true
-    } catch (error) {
-      if (error.name === 'AbortError') {
-        // Ожидаемое поведение при переключении трека
-        return false
-      }
-      console.error('Ошибка воспроизведения:', error)
-      return false
-    }
-  }
-
-  // === ИНИЦИАЛИЗАЦИЯ ===
   const initPlayer = (element) => {
     if (!element) {
       console.error('Плеера нет :(')
       return
     }
     playerStore.setAudioRef(element)
-    element.addEventListener('canplay', () => {
-      isReady.value = true
-    })
-    if (element.readyState >= 3) {
-      isReady.value = true
-    }
   }
 
-  // === ВОСПРОИЗВЕДЕНИЕ ТРЕКА ===
   const playTrack = async (track) => {
     const audio = playerStore.audioRef
     if (!audio) {
@@ -45,14 +20,14 @@ export function useAudioPlayer() {
     }
 
     try {
-      // Если тот же трек — переключаем паузу
+       
       if (playerStore.currentTrack && playerStore.currentTrack._id === track._id) {
         if (playerStore.isPlaying) {
           audio.pause()
           playerStore.setPlaying(false)
         } else {
-          const success = await safePlay(audio)
-          if (success) playerStore.setPlaying(true)
+          await audio.play()
+          playerStore.setPlaying(true)
         }
         return
       }
@@ -62,43 +37,55 @@ export function useAudioPlayer() {
       audio.src = track.track_file
       audio.load()
 
-      const canPlayHandler = () => {
-        audio.removeEventListener('canplay', canPlayHandler)
-        safePlay(audio).then((success) => {
-          if (success) playerStore.setPlaying(true)
-        })
-      }
-      audio.addEventListener('canplay', canPlayHandler)
+      // Ждём загрузки
+      await new Promise((resolve) => {
+        const onCanPlay = () => {
+          audio.removeEventListener('canplay', onCanPlay)
+          resolve()
+        }
+        audio.addEventListener('canplay', onCanPlay)
+        if (audio.readyState >= 3) resolve()
+      })
 
-      if (audio.readyState >= 3) {
-        audio.removeEventListener('canplay', canPlayHandler)
-        const success = await safePlay(audio)
-        if (success) playerStore.setPlaying(true)
-      }
+      await audio.play()
+      playerStore.setPlaying(true)
     } catch (error) {
+      if (error.name === 'AbortError') {
+         
+        return
+      }
       console.error('Ошибка воспроизведения:', error)
       playerStore.setPlaying(false)
     }
   }
 
-  // === PLAY/PAUSE ===
   const togglePlay = () => {
     const audio = playerStore.audioRef
-    if (!audio || !isReady.value) {
-      console.warn('Плеер не готов или отсутствует')
+    if (!audio) {
+      console.warn('Плеер не инициализирован')
       return
     }
+
     if (playerStore.isPlaying) {
       audio.pause()
       playerStore.setPlaying(false)
     } else {
-      safePlay(audio).then((success) => {
-        if (success) playerStore.setPlaying(true)
-      })
+      audio.play()
+        .then(() => playerStore.setPlaying(true))
+        .catch((err) => {
+           
+          if (err.name === 'NotSupportedError' || err.name === 'AbortError') {
+            if (playerStore.currentTrack) {
+              playTrack(playerStore.currentTrack)
+            }
+          } else {
+            console.warn('Не удалось воспроизвести:', err)
+            playerStore.setPlaying(false)
+          }
+        })
     }
   }
 
-  // === ОБНОВЛЕНИЕ ПРОГРЕССА ===
   const handleTimeUpdate = () => {
     const audio = playerStore.audioRef
     if (!audio) return
@@ -110,41 +97,40 @@ export function useAudioPlayer() {
     }
   }
 
-  // === ОКОНЧАНИЕ ТРЕКА ===
   const handleTrackEnd = () => {
     const audio = playerStore.audioRef
     if (!audio) return
 
     if (playerStore.repeat) {
       audio.currentTime = 0
-      safePlay(audio).then(() => {
-        playerStore.setPlaying(true)
-      })
+      audio.play().catch(() => {})
+      playerStore.setPlaying(true)
     } else {
       playerStore.setPlaying(false)
       playerStore.setProgress(0)
       const next = playerStore.getNextTrack()
-      if (next) playTrack(next)
+      if (next) {
+        playTrack(next)
+      }
     }
   }
 
-  // === ПЕРЕМОТКА ===
   const seekTo = (percentage) => {
     const audio = playerStore.audioRef
     if (!audio || !playerStore.currentTrack) return
     const newTime = (percentage / 100) * audio.duration
-    audio.currentTime = newTime
-    playerStore.setProgress(percentage)
+    if (!isNaN(newTime) && isFinite(newTime)) {
+      audio.currentTime = newTime
+      playerStore.setProgress(percentage)
+    }
   }
 
-  // === ГРОМКОСТЬ ===
   const updateVolume = () => {
     const audio = playerStore.audioRef
     if (!audio) return
     audio.volume = playerStore.volume / 100
   }
 
-  // === ПЕРЕКЛЮЧЕНИЕ ТРЕКОВ ===
   const nextTrack = () => {
     const track = playerStore.getNextTrack()
     if (track) playTrack(track)
@@ -155,30 +141,29 @@ export function useAudioPlayer() {
     if (track) playTrack(track)
   }
 
-  // === REPEAT / SHUFFLE ===
   const toggleRepeat = () => playerStore.toggleRepeat()
   const toggleShuffle = () => playerStore.toggleShuffle()
 
-  // === АВТОМАТИЧЕСКАЯ ЗАГРУЗКА ПРИ СМЕНЕ ТРЕКА ===
-  watch(() => playerStore.currentTrack, (newTrack) => {
-    const audio = playerStore.audioRef
-    if (!newTrack || !audio) return
+   
+  watch(() => playerStore.currentTrack, (newTrack, oldTrack) => {
+    if (newTrack && newTrack._id !== oldTrack?._id) {
+      const audio = playerStore.audioRef
+      if (!audio) return
 
-    isReady.value = false
-    playerStore.setPlaying(false)
-    playerStore.setProgress(0)
-    audio.src = newTrack.track_file
-    audio.load()
+      playerStore.setPlaying(false)
+      playerStore.setProgress(0)
+      audio.src = newTrack.track_file
+      audio.load()
 
-    const handler = () => {
-      isReady.value = true
-      audio.removeEventListener('canplay', handler)
-      safePlay(audio).then((success) => {
-        if (success) playerStore.setPlaying(true)
-      })
+      const onCanPlay = () => {
+        audio.removeEventListener('canplay', onCanPlay)
+        audio.play()
+          .then(() => playerStore.setPlaying(true))
+          .catch(() => playerStore.setPlaying(false))
+      }
+      audio.addEventListener('canplay', onCanPlay)
+      if (audio.readyState >= 3) onCanPlay()
     }
-    audio.addEventListener('canplay', handler)
-    if (audio.readyState >= 3) handler()
   }, { immediate: false })
 
   return {
@@ -193,6 +178,5 @@ export function useAudioPlayer() {
     prevTrack,
     toggleRepeat,
     toggleShuffle,
-    isReady,
   }
 }

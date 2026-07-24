@@ -1,43 +1,69 @@
 <template>
   <div>
-    <div class="playlist__header">
-      <span class="col-track">ТРЕК</span>
-      <span class="col-artist">ИСПОЛНИТЕЛЬ</span>
-      <span class="col-album">АЛЬБОМ</span>
-      <span class="col-time">
-  <img src="/img/icon/watch.svg" alt="Длительность" class="col-time-icon" />
-</span>
+    <div v-if="!tracks || !tracks.length" class="empty">
+      Нет треков
     </div>
 
-    <div v-if="loading" class="skeleton">Загрузка...</div>
-    <div v-else-if="error" class="error">{{ error }}</div>
+    <div v-else>
+      <div class="playlist__header">
+        <span class="col-track">ТРЕК</span>
+        <span class="col-artist">ИСПОЛНИТЕЛЬ</span>
+        <span class="col-album">АЛЬБОМ</span>
+        <span class="col-time">
+  <img src="/img/icon/watch.svg" alt="Длительность" class="col-time-icon" />
+</span>
+      </div>
 
-    <div v-else class="playlist__list">
-      <Track
-        v-for="track in filtered"
-        :key="track._id"
-        :track="track"
-      />
+      <div class="playlist__list">
+        <Track
+          v-for="track in filteredTracks"
+          :key="track._id"
+          :track="track"
+          @select="$emit('select', track)"
+        />
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { computed, onMounted, watch } from 'vue'
-import { useTracks } from '@/composables/useTracks'
-import { usePlayerStore } from '~/stores/player'
+import { computed } from 'vue'
 import Track from './Track.vue'
 
 const props = defineProps({
-  searchQuery: String,
-  sortBy: String
+  tracks: {
+    type: Array,
+    required: true,
+    default: () => []
+  },
+  searchQuery: {
+    type: String,
+    default: ''
+  },
+  sortBy: {
+    type: String,
+    default: 'default'
+  },
+  selectedAuthors: {
+    type: Array,
+    default: () => []
+  },
+  selectedGenres: {
+    type: Array,
+    default: () => []
+  },
+  selectedYears: {
+    type: Array,
+    default: () => []
+  }
 })
 
-const { tracks, loading, error, fetchTracks } = useTracks()
-const playerStore = usePlayerStore()
+const emit = defineEmits(['select'])
 
-const filtered = computed(() => {
-  let list = [...tracks.value]
+const filteredTracks = computed(() => {
+  let list = [...props.tracks]
+
+  // Поиск
   if (props.searchQuery) {
     const q = props.searchQuery.toLowerCase()
     list = list.filter(t =>
@@ -45,26 +71,41 @@ const filtered = computed(() => {
       t.author?.toLowerCase().includes(q)
     )
   }
+
+  // Фильтр по авторам
+  if (props.selectedAuthors.length) {
+    list = list.filter(t => props.selectedAuthors.includes(t.author))
+  }
+
+  // Фильтр по жанрам
+  if (props.selectedGenres.length) {
+    list = list.filter(t => {
+      if (Array.isArray(t.genre)) {
+        return t.genre.some(g => props.selectedGenres.includes(g.toLowerCase()))
+      }
+      return props.selectedGenres.includes(t.genre?.toLowerCase())
+    })
+  }
+
+  // Фильтр по годам
+  if (props.selectedYears.length) {
+    list = list.filter(t => {
+      const year = t.release_date?.split('-')[0]
+      return props.selectedYears.includes(year)
+    })
+  }
+
+  // Сортировка
   if (props.sortBy === 'newest') {
     list.sort((a, b) => new Date(b.release_date) - new Date(a.release_date))
   } else if (props.sortBy === 'oldest') {
     list.sort((a, b) => new Date(a.release_date) - new Date(b.release_date))
   }
+
   return list
 })
-
-// Следим за изменением списка треков и обновляем плейлист в сторе
-watch(tracks, (newTracks) => {
-  if (newTracks && newTracks.length) {
-    
-    playerStore.setPlaylist(newTracks)
-  }
-}, { immediate: true, deep: true })
-
-onMounted(() => {
-  fetchTracks()
-})
 </script>
+
 
 <style scoped>
 .playlist__header {
@@ -77,10 +118,13 @@ onMounted(() => {
   text-transform: uppercase;
 }
 
-.col-track { width: 30%; }
-.col-artist { width: 30%; }
-.col-album { width: 30%; }
-.col-time { width: 10%; text-align: right; }
+.col-track { width: 680px; }
+.col-artist { width: 560px; }
+.col-album { width: 520px; }
+.col-time {
+  width: 20px;
+  text-align: right;
+}
 
 .skeleton {
   color: #888;
@@ -89,5 +133,10 @@ onMounted(() => {
 .error {
   color: #ff6b6b;
   padding: 20px;
+}
+.empty {
+  color: #888;
+  padding: 20px;
+  text-align: center;
 }
 </style>
