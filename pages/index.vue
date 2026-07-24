@@ -4,17 +4,20 @@
 
     <FilterControls />
 
-    <div v-if="tracksStore.loading" class="skeleton-wrapper">
+    <!-- Скелетон во время загрузки -->
+    <div v-if="pending" class="skeleton-wrapper">
       <div v-for="n in 10" :key="n" class="skeleton-item">
         <div class="skeleton-line"></div>
         <div class="skeleton-line short"></div>
       </div>
     </div>
 
-    <div v-else-if="tracksStore.error" class="error-message">
-      Не удалось загрузить треки: {{ tracksStore.error }}
+    <!-- Ошибка -->
+    <div v-else-if="error" class="error-message">
+      Не удалось загрузить треки: {{ error.message }}
     </div>
 
+    <!-- Список треков -->
     <Playlist
       v-else
       :tracks="tracksStore.allTracks"
@@ -29,7 +32,7 @@
 </template>
 
 <script setup>
-import { watch, watchEffect } from 'vue'
+import { watchEffect } from 'vue'
 import FilterControls from '@/components/FilterControls.vue'
 import Playlist from '@/components/Playlist.vue'
 import { usePlayerStore } from '~/stores/player'
@@ -40,11 +43,26 @@ const tracksStore = useTracksStore()
 const playerStore = usePlayerStore()
 const filterStore = useFiltersStore()
 
- 
+// Ленивая загрузка треков (не блокирует рендеринг)
+const { data: tracksData, pending, error } = await useFetch(
+  'https://webdev-music-003b5b991590.herokuapp.com/catalog/track/all/',
+  {
+    lazy: true,
+    transform: (response) => response.data || [],
+  }
+)
+
+// Синхронизация с хранилищем, если данные ещё не загружены
+if (tracksData.value && tracksData.value.length && !tracksStore.allTracks.length) {
+  tracksStore.allTracks = tracksData.value
+  filterStore.setAllTracks(tracksData.value)
+  playerStore.setPlaylist(tracksData.value)
+}
+
+// Реактивное обновление при изменении треков (если они изменятся в сторе)
 watchEffect(() => {
   if (tracksStore.allTracks.length) {
     filterStore.setAllTracks(tracksStore.allTracks)
-     
     playerStore.setPlaylist(tracksStore.allTracks)
     console.log('📋 Плейлист передан в плеер, треков:', tracksStore.allTracks.length)
   }
@@ -65,7 +83,6 @@ watchEffect(() => {
   })
 })
 </script>
-
 
 <style scoped>
 .centerblock__h2 {

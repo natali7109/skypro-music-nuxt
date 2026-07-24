@@ -40,27 +40,45 @@
       <!-- КОНТЕНТ -->
       <div class="main">
         <div class="main__centerblock">
-          <slot />  <!-- Содержимое страниц -->
+          <slot />  
         </div>
 
         <div class="main__sidebar">
           <div class="sidebar__block">
             <div class="sidebar__list">
               <div class="sidebar__item">
-                <a href="#" class="sidebar__link">
-                  <img src="/img/playlist/playlist01.png" alt="Плейлист дня" class="sidebar__img" />
-                </a>
-              </div>
-              <div class="sidebar__item">
-                <a href="#" class="sidebar__link">
-                  <img src="/img/playlist/playlist02.png" alt="100 танцевальных хитов" class="sidebar__img" />
-                </a>
-              </div>
-              <div class="sidebar__item">
-                <a href="#" class="sidebar__link">
-                  <img src="/img/playlist/playlist03.png" alt="Инди-заряд" class="sidebar__img" />
-                </a>
-              </div>
+  <a href="#" class="sidebar__link">
+    <NuxtImg
+      src="/img/playlist/playlist01.png"
+      alt="Плейлист дня"
+      class="sidebar__img"
+      :placeholder="[5]"
+      loading="lazy"
+    />
+  </a>
+</div>
+<div class="sidebar__item">
+  <a href="#" class="sidebar__link">
+    <NuxtImg
+      src="/img/playlist/playlist02.png"
+      alt="100 танцевальных хитов"
+      class="sidebar__img"
+      :placeholder="[5]"
+      loading="lazy"
+    />
+  </a>
+</div>
+<div class="sidebar__item">
+  <a href="#" class="sidebar__link">
+    <NuxtImg
+      src="/img/playlist/playlist03.png"
+      alt="Инди-заряд"
+      class="sidebar__img"
+      :placeholder="[5]"
+      loading="lazy"
+    />
+  </a>
+</div>
             </div>
           </div>
         </div>
@@ -332,4 +350,6 @@ const currentTrack = computed(() => playerStore.currentTrack)
     margin-left: 0;
   }
 }
+
+
 </style>

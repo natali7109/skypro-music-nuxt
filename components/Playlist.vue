@@ -10,7 +10,7 @@
         <span class="col-artist">ИСПОЛНИТЕЛЬ</span>
         <span class="col-album">АЛЬБОМ</span>
         <span class="col-time">
-  <img src="/img/icon/watch.svg" alt="Длительность" class="col-time-icon" />
+  <NuxtImg src="/img/icon/watch.svg" alt="Длительность" class="col-time-icon" :placeholder="[5]" />
 </span>
       </div>
 

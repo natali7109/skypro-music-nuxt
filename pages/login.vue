@@ -1,6 +1,6 @@
 <template>
   <div class="auth-form">
-    <img src="/img/logo_modal.png" alt="skypro" class="logo-img" />
+   <NuxtImg src="/img/logo_modal.png" alt="skypro" class="logo-img" />
     
     <form @submit.prevent="handleLogin">
       <div class="form-group">

@@ -3,13 +3,15 @@
     <div class="playlist__track">
       <div class="track__title">
         <div class="track__cover-wrapper">
-          <!-- Обложка -->
-          <img 
-            v-if="coverUrl" 
-            :src="coverUrl" 
-            alt="Обложка" 
-            class="track__cover" 
-          />
+  <!-- Обложка -->
+  <NuxtImg
+    v-if="coverUrl"
+    :src="coverUrl"
+    alt="Обложка"
+    class="track__cover"
+    :placeholder="[5]"
+    loading="lazy"
+  />
           <svg v-else class="track__title-svg" width="18" height="17" viewBox="0 0 18 17">
             <path d="M8 2L8 15M12 4L12 13M4 6L4 11M16 6L16 11" stroke="#4e4e4e" stroke-width="2"/>
           </svg>

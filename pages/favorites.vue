@@ -3,7 +3,7 @@
     <h2 class="centerblock__h2">Мои треки</h2>
 
     <!-- Состояние загрузки -->
-    <div v-if="tracksStore.loading" class="skeleton-wrapper">
+    <div v-if="pending" class="skeleton-wrapper">
       <div v-for="n in 5" :key="n" class="skeleton-item">
         <div class="skeleton-line"></div>
         <div class="skeleton-line short"></div>
@@ -11,8 +11,8 @@
     </div>
 
     <!-- Ошибка -->
-    <div v-else-if="tracksStore.error" class="error-message">
-      {{ tracksStore.error }}
+    <div v-else-if="error" class="error-message">
+      {{ error.message || 'Ошибка загрузки треков' }}
     </div>
 
     <!-- Нет избранных -->
@@ -27,8 +27,8 @@
         <span class="col-artist">ИСПОЛНИТЕЛЬ</span>
         <span class="col-album">АЛЬБОМ</span>
         <span class="col-time">
-  <img src="/img/icon/watch.svg" alt="Длительность" class="col-time-icon" />
-</span>
+          <NuxtImg src="/img/icon/watch.svg" alt="Длительность" class="col-time-icon" :placeholder="[5]" />
+        </span>
       </div>
 
       <div class="playlist__list">
@@ -50,21 +50,40 @@ import { usePlayerStore } from '~/stores/player'
 import { useFavoritesStore } from '~/stores/favorites'
 import { useTracksStore } from '~/stores/tracks'
 
-const tracksStore = useTracksStore()
+// Сторы
 const playerStore = usePlayerStore()
 const favoritesStore = useFavoritesStore()
+const tracksStore = useTracksStore()
 
-// Фильтруем избранные треки из общего списка
+// Ленивая загрузка всех треков (не блокирует рендеринг)
+const { data: allTracks, pending, error } = await useFetch(
+  'https://webdev-music-003b5b991590.herokuapp.com/catalog/track/all/',
+  {
+    lazy: true,
+    transform: (response) => response.data || [],
+  }
+)
+
+// Синхронизируем загруженные треки со стором (чтобы другие страницы тоже их имели)
+// Если в сторе уже есть данные, то не перезаписываем, иначе сохраняем
+if (allTracks.value && allTracks.value.length && !tracksStore.allTracks.length) {
+  tracksStore.allTracks = allTracks.value
+}
+
+// Фильтруем избранные треки
 const favoriteTracks = computed(() => {
-  return tracksStore.allTracks.filter(track => favoritesStore.isLiked(track._id))
+  // Используем данные из стора, если они уже есть, иначе из локальной загрузки
+  const tracks = tracksStore.allTracks.length ? tracksStore.allTracks : (allTracks.value || [])
+  return tracks.filter(track => favoritesStore.isLiked(track._id))
 })
 
 const selectTrack = (track) => {
   playerStore.setCurrentTrack(track)
 }
 
+// Загружаем избранное из localStorage
 onMounted(() => {
-  favoritesStore.load()  
+  favoritesStore.load()
 })
 </script>
 
@@ -122,7 +141,6 @@ onMounted(() => {
   font-size: 18px;
 }
 
- 
 .playlist__header {
   display: flex;
   padding: 10px 0;

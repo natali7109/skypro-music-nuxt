@@ -10,35 +10,38 @@
       <div class="bar__player-block">
         <div class="bar__player">
           <div class="player__controls">
-            <button class="player__btn" @click="prevTrack" title="Предыдущий">
-              <img src="/img/icon/prev.svg" alt="Prev" class="player__icon" />
+            <button class="player__btn" @click="prevTrack" :disabled="!canPrev" title="Предыдущий">
+              <NuxtImg src="/img/icon/prev.svg" alt="Prev" class="player__icon" :placeholder="[5]" />
             </button>
             <button class="player__btn" @click="togglePlay" :title="playerStore.isPlaying ? 'Пауза' : 'Воспроизвести'">
-              <img
+              <NuxtImg
                 :src="playerStore.isPlaying ? '/img/icon/pause.svg' : '/img/icon/play.svg'"
                 alt="Play/Pause"
                 class="player__icon"
+                :placeholder="[5]"
               />
             </button>
-            <button class="player__btn" @click="nextTrack" title="Следующий">
-              <img src="/img/icon/next.svg" alt="Next" class="player__icon" />
+            <button class="player__btn" @click="nextTrack" :disabled="!canNext" title="Следующий">
+              <NuxtImg src="/img/icon/next.svg" alt="Next" class="player__icon" :placeholder="[5]" />
             </button>
             <button class="player__btn" @click="toggleRepeat" :class="{ active: playerStore.repeat }" title="Повтор">
-              <img src="/img/icon/repeat.svg" alt="Repeat" class="player__icon" />
+              <NuxtImg src="/img/icon/repeat.svg" alt="Repeat" class="player__icon" :placeholder="[5]" />
             </button>
             <button class="player__btn" @click="toggleShuffle" :class="{ active: playerStore.shuffle }" title="Перемешать">
-              <img src="/img/icon/shuffle.svg" alt="Shuffle" class="player__icon" />
+              <NuxtImg src="/img/icon/shuffle.svg" alt="Shuffle" class="player__icon" :placeholder="[5]" />
             </button>
           </div>
 
           <div class="player__track-play">
             <div class="track-play__contain">
               <div class="track-play__image">
-                <img
+                <NuxtImg
                   v-if="playerStore.currentTrack?.logo && typeof playerStore.currentTrack.logo === 'string'"
                   :src="playerStore.currentTrack.logo"
                   alt="Обложка"
                   class="track-play__cover"
+                  :placeholder="[5]"
+                  loading="lazy"
                 />
                 <svg v-else width="18" height="17" viewBox="0 0 18 17">
                   <path d="M8 2L8 15M12 4L12 13M4 6L4 11M16 6L16 11" stroke="#4e4e4e" stroke-width="2"/>
@@ -117,6 +120,14 @@ onMounted(() => {
   if (audioPlayer.value) {
     initPlayer(audioPlayer.value)
   }
+})
+
+const canPrev = computed(() => {
+  return playerStore.getPrevTrack() !== null
+})
+
+const canNext = computed(() => {
+  return playerStore.getNextTrack() !== null
 })
 
 const handleProgressClick = (event) => {
@@ -207,16 +218,20 @@ const toggleLike = () => {
   cursor: pointer;
   padding: 4px;
   color: #d9d9d9;
-  transition: color 0.2s;
+  transition: transform 0.2s ease, color 0.2s ease;
 }
 
-.player__btn:hover {
-  color: #fff;
+.player__btn:hover .player__icon {
+  transform: scale(1.4);
+  transition: transform 0.2s ease;
 }
+
 
 .player__btn.active {
-  color: #7334ea;
+  transform: scale(1.2);          
+  color: #7334ea;                 
 }
+
 .player__btn.active svg {
   stroke: #7334ea;
 }
@@ -224,6 +239,17 @@ const toggleLike = () => {
   display: block;
   width: auto;
   height: 20px; 
+}
+
+.player__btn:disabled {
+  opacity: 0.3;
+  cursor: default;
+  pointer-events: none; 
+}
+
+
+.player__btn.active .player__icon {
+  filter: brightness(0) saturate(100%) invert(36%) sepia(97%) saturate(1395%) hue-rotate(253deg) brightness(93%) contrast(96%);
 }
 
 /* ===== ИНФОРМАЦИЯ О ТРЕКЕ ===== */
