@@ -122,7 +122,8 @@ const selectSort = (value) => {
   border-radius: 12px;
   padding: 6px;
   width: 248px;
-  max-height: 305px;
+  max-height: 150px;
+  scrollbar-width: thin;
   overflow-y: auto;
   z-index: 10;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);

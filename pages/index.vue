@@ -4,7 +4,7 @@
 
     <FilterControls />
 
-    <!-- Скелетон во время загрузки -->
+    <!-- Скелетон -->
     <div v-if="pending" class="skeleton-wrapper">
       <div v-for="n in 10" :key="n" class="skeleton-item">
         <div class="skeleton-line"></div>
@@ -18,9 +18,10 @@
     </div>
 
     <!-- Список треков -->
+    <!-- tracks берем напрямую из стора через getter filteredTracks -->
     <Playlist
       v-else
-      :tracks="tracksStore.allTracks"
+      :tracks="tracksStore.filteredTracks"
       :search-query="filterStore.searchQuery"
       :sort-by="filterStore.sortBy"
       :selected-authors="filterStore.selectedAuthors"
@@ -43,7 +44,12 @@ const tracksStore = useTracksStore()
 const playerStore = usePlayerStore()
 const filterStore = useFiltersStore()
 
-// Ленивая загрузка треков (не блокирует рендеринг)
+// Загружаем треки, если их еще нет
+if (!tracksStore.allTracks.length) {
+  tracksStore.fetchTracks()
+}
+
+// Ленивая загрузка с API (для скелетона и т.д.)
 const { data: tracksData, pending, error } = await useFetch(
   'https://webdev-music-003b5b991590.herokuapp.com/catalog/track/all/',
   {
@@ -52,36 +58,24 @@ const { data: tracksData, pending, error } = await useFetch(
   }
 )
 
-// Синхронизация с хранилищем, если данные ещё не загружены
+// Синхронизация с хранилищем
 if (tracksData.value && tracksData.value.length && !tracksStore.allTracks.length) {
   tracksStore.allTracks = tracksData.value
   filterStore.setAllTracks(tracksData.value)
   playerStore.setPlaylist(tracksData.value)
 }
 
-// Реактивное обновление при изменении треков (если они изменятся в сторе)
+// Реактивное обновление
 watchEffect(() => {
   if (tracksStore.allTracks.length) {
     filterStore.setAllTracks(tracksStore.allTracks)
     playerStore.setPlaylist(tracksStore.allTracks)
-    console.log('📋 Плейлист передан в плеер, треков:', tracksStore.allTracks.length)
   }
 })
 
 const selectTrack = (track) => {
   playerStore.setCurrentTrack(track)
 }
-
-// Отладочный лог (можно убрать позже)
-watchEffect(() => {
-  console.log('Фильтры изменились:', {
-    search: filterStore.searchQuery,
-    authors: filterStore.selectedAuthors,
-    genres: filterStore.selectedGenres,
-    years: filterStore.selectedYears,
-    sort: filterStore.sortBy
-  })
-})
 </script>
 
 <style scoped>

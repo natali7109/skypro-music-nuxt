@@ -220,6 +220,12 @@ const toggleLike = () => {
   color: #d9d9d9;
   transition: transform 0.2s ease, color 0.2s ease;
 }
+.player__icon {
+  width: 16px;  
+  height: 16px;  
+  object-fit: contain;
+}
+
 
 .player__btn:hover .player__icon {
   transform: scale(1.4);

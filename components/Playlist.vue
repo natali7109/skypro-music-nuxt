@@ -10,13 +10,13 @@
         <span class="col-artist">ИСПОЛНИТЕЛЬ</span>
         <span class="col-album">АЛЬБОМ</span>
         <span class="col-time">
-  <NuxtImg src="/img/icon/watch.svg" alt="Длительность" class="col-time-icon" :placeholder="[5]" />
-</span>
+          <NuxtImg src="/img/icon/watch.svg" alt="Длительность" class="col-time-icon" :placeholder="[5]" />
+        </span>
       </div>
 
       <div class="playlist__list">
         <Track
-          v-for="track in filteredTracks"
+          v-for="track in filteredList"
           :key="track._id"
           :track="track"
           @select="$emit('select', track)"
@@ -59,18 +59,8 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['select'])
-
-const filteredTracks = computed(() => {
+const filteredList = computed(() => {
   let list = [...props.tracks]
-
-  // Поиск
-  if (props.searchQuery) {
-    const q = props.searchQuery.toLowerCase()
-    list = list.filter(t =>
-      t.name?.toLowerCase().includes(q) ||
-      t.author?.toLowerCase().includes(q)
-    )
-  }
 
   // Фильтр по авторам
   if (props.selectedAuthors.length) {
@@ -105,7 +95,6 @@ const filteredTracks = computed(() => {
   return list
 })
 </script>
-
 
 <style scoped>
 .playlist__header {

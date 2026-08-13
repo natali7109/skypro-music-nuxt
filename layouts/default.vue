@@ -11,12 +11,11 @@
             <path d="M13 13L17 17" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
           </svg>
           <input
-            v-model="searchQuery"
-            type="text"
-            class="search__input"
-            placeholder="Поиск"
-            @input="updateSearch"
-          />
+  v-model="tracksStore.searchQuery"
+  type="text"
+  class="search__input"
+  placeholder="Поиск"
+/>
         </div>
         <button class="header__logout" @click="handleLogout">
           <svg
@@ -40,6 +39,7 @@
       <!-- КОНТЕНТ -->
       <div class="main">
         <div class="main__centerblock">
+          
           <slot />  
         </div>
 
@@ -47,7 +47,7 @@
           <div class="sidebar__block">
             <div class="sidebar__list">
               <div class="sidebar__item">
-                <a href="#" class="sidebar__link">
+                <NuxtLink to="/playlist/2" class="sidebar__link">
                   <NuxtImg
                     src="/img/playlist/playlist01.png"
                     alt="Плейлист дня"
@@ -55,21 +55,21 @@
                     :placeholder="[5]"
                     loading="lazy"
                   />
-                </a>
+                </NuxtLink>
               </div>
               <div class="sidebar__item">
-                <a href="#" class="sidebar__link">
+                <NuxtLink to="/playlist/3" class="sidebar__link">
                   <NuxtImg
                     src="/img/playlist/playlist02.png"
-                    alt="100 танцевальных хитов"
+                    alt="Танцевальные хиты"
                     class="sidebar__img"
                     :placeholder="[5]"
                     loading="lazy"
                   />
-                </a>
+                </NuxtLink>
               </div>
               <div class="sidebar__item">
-                <a href="#" class="sidebar__link">
+                <NuxtLink to="/playlist/4" class="sidebar__link">
                   <NuxtImg
                     src="/img/playlist/playlist03.png"
                     alt="Инди-заряд"
@@ -77,14 +77,14 @@
                     :placeholder="[5]"
                     loading="lazy"
                   />
-                </a>
+                </NuxtLink>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- ПЛЕЕР (скрыт, пока нет трека) -->
+      <!-- ПЛЕЕР -->
       <PlayerBar v-if="currentTrack" :current-track="currentTrack" />
     </div>
   </div>
@@ -100,37 +100,26 @@ import { useTracksStore } from '~/stores/tracks'
 import { useUserStore } from '~/stores/user'
 import { useHead } from '#app'
 
+
+
 const router = useRouter()
 const tracksStore = useTracksStore()
 const playerStore = usePlayerStore()
 const userStore = useUserStore()
 
-const searchQuery = ref('')
-const isMenuOpen = ref(false)
 
-useHead({
-  title: 'Skypro.Music',
-  meta: [
-    { name: 'description', content: 'Музыкальный сервис Skypro.Music' }
-  ]
-})
 
 onMounted(() => {
-  isMenuOpen.value = false
   tracksStore.fetchTracks()
 })
 
-const toggleMenu = () => {
-  isMenuOpen.value = !isMenuOpen.value
-}
 
-const updateSearch = () => {}
 
-// ===== ВЫХОД: очищаем только авторизацию, лайки остаются =====
+// ===== ВЫХОД =====
 const handleLogout = () => {
-  userStore.logout()          // очищает token и user
-  tracksStore.clearTracks()   // очищает треки в сторе
-  router.push('/login')       // редирект на страницу входа
+  userStore.logout()
+  tracksStore.clearTracks()
+  router.push('/login')
 }
 
 const currentTrack = computed(() => playerStore.currentTrack)
