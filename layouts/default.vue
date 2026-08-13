@@ -47,38 +47,38 @@
           <div class="sidebar__block">
             <div class="sidebar__list">
               <div class="sidebar__item">
-  <a href="#" class="sidebar__link">
-    <NuxtImg
-      src="/img/playlist/playlist01.png"
-      alt="Плейлист дня"
-      class="sidebar__img"
-      :placeholder="[5]"
-      loading="lazy"
-    />
-  </a>
-</div>
-<div class="sidebar__item">
-  <a href="#" class="sidebar__link">
-    <NuxtImg
-      src="/img/playlist/playlist02.png"
-      alt="100 танцевальных хитов"
-      class="sidebar__img"
-      :placeholder="[5]"
-      loading="lazy"
-    />
-  </a>
-</div>
-<div class="sidebar__item">
-  <a href="#" class="sidebar__link">
-    <NuxtImg
-      src="/img/playlist/playlist03.png"
-      alt="Инди-заряд"
-      class="sidebar__img"
-      :placeholder="[5]"
-      loading="lazy"
-    />
-  </a>
-</div>
+                <a href="#" class="sidebar__link">
+                  <NuxtImg
+                    src="/img/playlist/playlist01.png"
+                    alt="Плейлист дня"
+                    class="sidebar__img"
+                    :placeholder="[5]"
+                    loading="lazy"
+                  />
+                </a>
+              </div>
+              <div class="sidebar__item">
+                <a href="#" class="sidebar__link">
+                  <NuxtImg
+                    src="/img/playlist/playlist02.png"
+                    alt="100 танцевальных хитов"
+                    class="sidebar__img"
+                    :placeholder="[5]"
+                    loading="lazy"
+                  />
+                </a>
+              </div>
+              <div class="sidebar__item">
+                <a href="#" class="sidebar__link">
+                  <NuxtImg
+                    src="/img/playlist/playlist03.png"
+                    alt="Инди-заряд"
+                    class="sidebar__img"
+                    :placeholder="[5]"
+                    loading="lazy"
+                  />
+                </a>
+              </div>
             </div>
           </div>
         </div>
@@ -92,14 +92,19 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import Navbar from '@/components/Navbar.vue'
 import PlayerBar from '@/components/PlayerBar.vue'
 import { usePlayerStore } from '~/stores/player'
 import { useTracksStore } from '~/stores/tracks'
+import { useUserStore } from '~/stores/user'
 import { useHead } from '#app'
 
+const router = useRouter()
 const tracksStore = useTracksStore()
 const playerStore = usePlayerStore()
+const userStore = useUserStore()
+
 const searchQuery = ref('')
 const isMenuOpen = ref(false)
 
@@ -112,7 +117,7 @@ useHead({
 
 onMounted(() => {
   isMenuOpen.value = false
-  tracksStore.fetchTracks() // ← загружаем треки при старте
+  tracksStore.fetchTracks()
 })
 
 const toggleMenu = () => {
@@ -121,15 +126,15 @@ const toggleMenu = () => {
 
 const updateSearch = () => {}
 
+// ===== ВЫХОД: очищаем только авторизацию, лайки остаются =====
 const handleLogout = () => {
-  localStorage.clear()
-  tracksStore.clearTracks() // ← очищаем при выходе
-  window.location.href = '/login'
+  userStore.logout()          // очищает token и user
+  tracksStore.clearTracks()   // очищает треки в сторе
+  router.push('/login')       // редирект на страницу входа
 }
 
 const currentTrack = computed(() => playerStore.currentTrack)
 </script>
-
 
 <style scoped>
 /* ===== ЛЕВОЕ МЕНЮ ===== */
@@ -220,7 +225,6 @@ const currentTrack = computed(() => playerStore.currentTrack)
   justify-content: space-between;
   padding: 12px 24px;
   background: #181818;
- 
   margin-left: 244px;
 }
 
@@ -295,8 +299,6 @@ const currentTrack = computed(() => playerStore.currentTrack)
   padding-right: 20px;
 }
 
-
-
 /* ===== САЙДБАР ===== */
 .main__sidebar {
   max-width: 450px;
@@ -306,7 +308,6 @@ const currentTrack = computed(() => playerStore.currentTrack)
 
 .sidebar__block {
   height: 100%;
-  
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -340,18 +341,7 @@ const currentTrack = computed(() => playerStore.currentTrack)
   border-radius: 8px;
 }
 
-@media (max-width: 768px) {
-  .main__nav,
-  .main__sidebar {
-    display: none;
-  }
-  .main__header,
-  .main {
-    margin-left: 0;
-  }
-}
-
-/* ===== АДАПТАЦИЯ ДЛЯ ПЛАНШЕТОВ ===== */
+/* ===== АДАПТАЦИЯ ===== */
 @media (max-width: 1024px) {
   .main__sidebar {
     padding: 20px 10px 20px 10px;
@@ -365,7 +355,6 @@ const currentTrack = computed(() => playerStore.currentTrack)
   }
 }
 
-/* ===== АДАПТАЦИЯ ДЛЯ ТЕЛЕФОНОВ ===== */
 @media (max-width: 768px) {
   .main__nav,
   .main__sidebar {
@@ -384,5 +373,4 @@ const currentTrack = computed(() => playerStore.currentTrack)
     padding-right: 0;
   }
 }
-
 </style>
