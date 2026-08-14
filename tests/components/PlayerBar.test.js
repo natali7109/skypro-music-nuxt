@@ -15,10 +15,10 @@ describe('PlayerBar', () => {
   // Создаём и активируем Pinia перед каждым тестом
   beforeEach(() => {
     setActivePinia(createPinia())
+    // localStorage мокается глобально в tests/setup.js
   })
 
   it('отображает название текущего трека', () => {
-    // Устанавливаем трек в стор
     const store = usePlayerStore()
     store.setCurrentTrack(track)
 
@@ -30,6 +30,7 @@ describe('PlayerBar', () => {
         },
       },
     })
+    // Ищем элемент с названием трека по классу (если он есть)
     expect(wrapper.text()).toContain('Playing Track')
   })
 
@@ -73,7 +74,7 @@ describe('PlayerBar', () => {
         },
       },
     })
-    // Проверяем, что NuxtImg для обложки рендерится
+    // Проверяем, что блок с обложкой существует
     const cover = wrapper.find('.track-play__cover')
     expect(cover.exists()).toBe(true)
   })
@@ -95,7 +96,7 @@ describe('PlayerBar', () => {
         },
       },
     })
-    // Проверяем, что SVG-заглушка есть
+    // Проверяем, что SVG-заглушка есть (ищем по тегу svg)
     const svg = wrapper.find('.track-play__image svg')
     expect(svg.exists()).toBe(true)
   })

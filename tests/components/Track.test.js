@@ -9,11 +9,12 @@ describe('Track', () => {
     name: 'Test Track',
     author: 'Test Author',
     album: 'Test Album',
-    duration: 185,
+    duration_in_seconds: 185, // <--- ИЗМЕНЕНИЕ ЗДЕСЬ!
   }
 
   beforeEach(() => {
     setActivePinia(createPinia())
+    // localStorage мокается глобально в tests/setup.js
   })
 
   it('отображает название трека', () => {
@@ -50,5 +51,18 @@ describe('Track', () => {
       },
     })
     expect(wrapper.text()).toContain('Test Album')
+  })
+
+  it('отображает длительность трека в формате MM:SS', () => {
+    const wrapper = mount(Track, {
+      props: { track },
+      global: {
+        stubs: {
+          NuxtImg: true,
+        },
+      },
+    })
+    // Ожидаем формат 3:05 (185 секунд = 3 минуты 5 секунд)
+    expect(wrapper.text()).toContain('3:05')
   })
 })

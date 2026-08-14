@@ -6,14 +6,7 @@ import Navbar from '../../components/Navbar.vue'
 describe('Navbar', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
-    // Мокаем localStorage
-    const localStorageMock = {
-      getItem: vi.fn(),
-      setItem: vi.fn(),
-      clear: vi.fn(),
-      removeItem: vi.fn(),
-    }
-    global.localStorage = localStorageMock
+    // localStorage мокается глобально в tests/setup.js, здесь его не трогаем!
   })
 
   it('отображает логотип', () => {
@@ -25,7 +18,6 @@ describe('Navbar', () => {
         },
       },
     })
-    // Ищем контейнер логотипа через html-разметку
     expect(wrapper.html()).toContain('nav__logo')
   })
 
