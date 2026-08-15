@@ -4,20 +4,24 @@
 
     <FilterControls />
 
-    <div v-if="tracksStore.loading" class="skeleton-wrapper">
+    <!-- Скелетон -->
+    <div v-if="pending" class="skeleton-wrapper">
       <div v-for="n in 10" :key="n" class="skeleton-item">
         <div class="skeleton-line"></div>
         <div class="skeleton-line short"></div>
       </div>
     </div>
 
-    <div v-else-if="tracksStore.error" class="error-message">
-      Не удалось загрузить треки: {{ tracksStore.error }}
+    <!-- Ошибка -->
+    <div v-else-if="error" class="error-message">
+      Не удалось загрузить треки: {{ error.message }}
     </div>
 
+    <!-- Список треков -->
+    <!-- tracks берем напрямую из стора через getter filteredTracks -->
     <Playlist
       v-else
-      :tracks="tracksStore.allTracks"
+      :tracks="tracksStore.filteredTracks"
       :search-query="filterStore.searchQuery"
       :sort-by="filterStore.sortBy"
       :selected-authors="filterStore.selectedAuthors"
@@ -29,7 +33,7 @@
 </template>
 
 <script setup>
-import { watch, watchEffect } from 'vue'
+import { watchEffect } from 'vue'
 import FilterControls from '@/components/FilterControls.vue'
 import Playlist from '@/components/Playlist.vue'
 import { usePlayerStore } from '~/stores/player'
@@ -40,32 +44,39 @@ const tracksStore = useTracksStore()
 const playerStore = usePlayerStore()
 const filterStore = useFiltersStore()
 
- 
+// Загружаем треки, если их еще нет
+if (!tracksStore.allTracks.length) {
+  tracksStore.fetchTracks()
+}
+
+// Ленивая загрузка с API (для скелетона и т.д.)
+const { data: tracksData, pending, error } = await useFetch(
+  'https://webdev-music-003b5b991590.herokuapp.com/catalog/track/all/',
+  {
+    lazy: true,
+    transform: (response) => response.data || [],
+  }
+)
+
+// Синхронизация с хранилищем
+if (tracksData.value && tracksData.value.length && !tracksStore.allTracks.length) {
+  tracksStore.allTracks = tracksData.value
+  filterStore.setAllTracks(tracksData.value)
+  playerStore.setPlaylist(tracksData.value)
+}
+
+// Реактивное обновление
 watchEffect(() => {
   if (tracksStore.allTracks.length) {
     filterStore.setAllTracks(tracksStore.allTracks)
-     
     playerStore.setPlaylist(tracksStore.allTracks)
-    console.log('📋 Плейлист передан в плеер, треков:', tracksStore.allTracks.length)
   }
 })
 
 const selectTrack = (track) => {
   playerStore.setCurrentTrack(track)
 }
-
-// Отладочный лог (можно убрать позже)
-watchEffect(() => {
-  console.log('Фильтры изменились:', {
-    search: filterStore.searchQuery,
-    authors: filterStore.selectedAuthors,
-    genres: filterStore.selectedGenres,
-    years: filterStore.selectedYears,
-    sort: filterStore.sortBy
-  })
-})
 </script>
-
 
 <style scoped>
 .centerblock__h2 {

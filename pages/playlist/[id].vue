@@ -1,9 +1,9 @@
 <template>
   <div>
-    <h2 class="centerblock__h2">Мои треки</h2>
+    <h2 class="centerblock__h2">{{ selectionTitle }}</h2>
 
-    <!-- Состояние загрузки -->
-    <div v-if="pending" class="skeleton-wrapper">
+    <!-- Скелетон во время загрузки -->
+    <div v-if="loading" class="skeleton-wrapper">
       <div v-for="n in 5" :key="n" class="skeleton-item">
         <div class="skeleton-line"></div>
         <div class="skeleton-line short"></div>
@@ -12,15 +12,15 @@
 
     <!-- Ошибка -->
     <div v-else-if="error" class="error-message">
-      {{ error.message || 'Ошибка загрузки треков' }}
+      Не удалось загрузить подборку: {{ error }}
     </div>
 
-    <!-- Нет избранных -->
-    <div v-else-if="!favoriteTracks.length" class="empty-message">
-      У вас пока нет избранных треков
+    <!-- Нет треков -->
+    <div v-else-if="!tracks.length" class="empty-message">
+      В этой подборке пока нет треков
     </div>
 
-    <!-- Список избранных -->
+    <!-- Список треков -->
     <div v-else>
       <div class="playlist__header">
         <span class="col-track">ТРЕК</span>
@@ -33,7 +33,7 @@
 
       <div class="playlist__list">
         <Track
-          v-for="track in favoriteTracks"
+          v-for="track in tracks"
           :key="track._id"
           :track="track"
           @select="selectTrack"
@@ -45,46 +45,41 @@
 
 <script setup>
 import { computed, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
 import Track from '@/components/Track.vue'
 import { usePlayerStore } from '~/stores/player'
-import { useFavoritesStore } from '~/stores/favorites'
+import { useSelectionsStore } from '~/stores/selections'
 import { useTracksStore } from '~/stores/tracks'
 
-// Сторы
+const route = useRoute()
 const playerStore = usePlayerStore()
-const favoritesStore = useFavoritesStore()
+const selectionsStore = useSelectionsStore()
 const tracksStore = useTracksStore()
 
-// Ленивая загрузка всех треков (не блокирует рендеринг)
-const { data: allTracks, pending, error } = await useFetch(
-  'https://webdev-music-003b5b991590.herokuapp.com/catalog/track/all/',
-  {
-    lazy: true,
-    transform: (response) => response.data || [],
-  }
-)
+const selectionId = route.params.id
 
-// Синхронизируем загруженные треки со стором (чтобы другие страницы тоже их имели)
-// Если в сторе уже есть данные, то не перезаписываем, иначе сохраняем
-if (allTracks.value && allTracks.value.length && !tracksStore.allTracks.length) {
-  tracksStore.allTracks = allTracks.value
-}
+// Загружаем подборку при монтировании
+onMounted(async () => {
+  await selectionsStore.fetchSelectionById(selectionId)
+})
 
-// Фильтруем избранные треки
-const favoriteTracks = computed(() => {
-  // Используем данные из стора, если они уже есть, иначе из локальной загрузки
-  const tracks = tracksStore.allTracks.length ? tracksStore.allTracks : (allTracks.value || [])
-  return tracks.filter(track => favoritesStore.isLiked(track._id))
+// Получаем треки из подборки, используя уже загруженные треки из tracksStore
+const tracks = computed(() => {
+  const itemIds = selectionsStore.currentSelection?.items || []
+  const allTracks = tracksStore.allTracks || []
+  return allTracks.filter(track => itemIds.includes(track._id))
+})
+
+const loading = computed(() => selectionsStore.loading)
+const error = computed(() => selectionsStore.error)
+
+const selectionTitle = computed(() => {
+  return selectionsStore.currentSelection?.name || 'Подборка'
 })
 
 const selectTrack = (track) => {
   playerStore.setCurrentTrack(track)
 }
-
-// Загружаем избранное из localStorage
-onMounted(() => {
-  favoritesStore.load()
-})
 </script>
 
 <style scoped>

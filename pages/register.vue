@@ -1,7 +1,7 @@
 <template>
   <div class="auth-form">
-    <img src="/img/logo_modal.png" alt="skypro" class="logo-img" />
-    
+    <NuxtImg src="/img/logo_modal.png" alt="skypro" class="logo-img" />
+
     <form @submit.prevent="handleRegister">
       <div class="form-group">
         <input id="email" v-model="email" type="email" required placeholder="Почта" />
@@ -27,10 +27,13 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useUserStore } from '~/stores/user'
 
 definePageMeta({ layout: 'auth' })
 
 const router = useRouter()
+const userStore = useUserStore()
+
 const email = ref('')
 const password = ref('')
 const loading = ref(false)
@@ -41,7 +44,7 @@ const handleRegister = async () => {
   loading.value = true
 
   try {
-    // Отправляем username = email (так как поле имени убрано)
+    // 1. Регистрация
     const response = await fetch('https://webdev-music-003b5b991590.herokuapp.com/user/signup/', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -60,7 +63,7 @@ const handleRegister = async () => {
       })
     }
 
-    // Автоматический вход после регистрации
+    // 2. Автоматический вход после регистрации
     const loginResponse = await fetch('https://webdev-music-003b5b991590.herokuapp.com/user/login/', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -75,6 +78,7 @@ const handleRegister = async () => {
       })
     }
 
+    // 3. Получение токена
     const tokenResponse = await fetch('https://webdev-music-003b5b991590.herokuapp.com/user/token/', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -82,7 +86,10 @@ const handleRegister = async () => {
     })
     const tokenData = await tokenResponse.json()
 
-    localStorage.setItem('token', tokenData.access)
+    // 4. Сохраняем через стор пользователя
+    userStore.login(tokenData.access, { email: email.value })
+
+    // 5. Редирект на главную
     router.push('/')
   } catch (err) {
     if (err.statusCode) {
@@ -98,31 +105,33 @@ const handleRegister = async () => {
 
 <style scoped>
 .auth-form {
-  width: 368px;                    
-  padding: 40px 24px;             
+  width: 368px;
+  padding: 40px 24px;
   background: #ffffff;
   border-radius: 16px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
   display: flex;
   flex-direction: column;
-  align-items: center;            
+  align-items: center;
 }
 
 .logo-img {
-  width: 120px;                  
-  height: 41px;                 
-  margin: 0 auto 12px;           
+  width: 120px;
+  height: 41px;
+  margin: 0 auto 12px;
   display: block;
-  object-fit: contain;           
+  object-fit: contain;
 }
+
 form {
-  width: 100%;                  
+  width: 100%;
 }
 
 .form-group {
-margin-top: 20px;
+  margin-top: 20px;
   margin-bottom: 20px;
 }
+
 .form-group input {
   width: 100%;
   border: none;
@@ -134,9 +143,11 @@ margin-top: 20px;
   color: #1a1a1a;
   transition: border-color 0.2s;
 }
+
 .form-group input:focus {
   border-bottom-color: #ad61ff;
 }
+
 .form-group input::placeholder {
   color: #a0a0a0;
 }
@@ -179,6 +190,7 @@ margin-top: 20px;
   color: #1a1a1a;
   border-color: #d0d0d0;
 }
+
 .button-group:hover .btn-secondary {
   background: #ad61ff;
   color: #ffffff;

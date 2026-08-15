@@ -23,8 +23,8 @@
         <span class="col-artist">ИСПОЛНИТЕЛЬ</span>
         <span class="col-album">АЛЬБОМ</span>
         <span class="col-time">
-  <img src="/img/icon/watch.svg" alt="Длительность" class="col-time-icon" />
-</span>
+          <NuxtImg src="/img/icon/watch.svg" alt="Длительность" class="col-time-icon" :placeholder="[5]" />
+        </span>
       </div>
 
       <div class="playlist__list">
@@ -49,31 +49,27 @@ const route = useRoute()
 const playerStore = usePlayerStore()
 const categoryId = route.params.id
 
-// Определяем название категории 
+// Название категории (для заголовка)
 const categoryName = computed(() => {
-  // Здесь можно сделать маппинг, если нужно
   return categoryId.charAt(0).toUpperCase() + categoryId.slice(1)
 })
 
-// Загружаем все треки
-const { data: allTracks, pending, error } = await useAsyncData(`category-${categoryId}`, async () => {
-  const response = await fetch('https://webdev-music-003b5b991590.herokuapp.com/catalog/track/all/')
-  if (!response.ok) {
-    throw new Error('Не удалось загрузить треки')
+// Ленивая загрузка всех треков (страница не блокируется)
+const { data: allTracks, pending, error } = await useFetch(
+  'https://webdev-music-003b5b991590.herokuapp.com/catalog/track/all/',
+  {
+    lazy: true,                     // ← не блокирует навигацию
+    transform: (response) => response.data || [],
   }
-  const result = await response.json()
-  return result.data || []
-})
+)
 
-// Фильтруем треки по категории (по жанру или автору, зависит от данных)
+// Фильтрация треков по категории (жанру)
 const filteredTracks = computed(() => {
   if (!allTracks.value) return []
   return allTracks.value.filter(track => {
-    // Ищем категорию в жанрах (если genre — массив)
     if (Array.isArray(track.genre)) {
       return track.genre.some(g => g.toLowerCase() === categoryId.toLowerCase())
     }
-    // Или если genre — строка
     return track.genre?.toLowerCase() === categoryId.toLowerCase()
   })
 })
@@ -84,7 +80,7 @@ const selectTrack = (track) => {
 </script>
 
 <style scoped>
-/* те же стили, что на странице избранного */
+/* ===== СТИЛИ (без изменений) ===== */
 .centerblock__h2 {
   font-size: 64px;
   font-weight: 400;

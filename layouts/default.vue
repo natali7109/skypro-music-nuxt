@@ -11,12 +11,11 @@
             <path d="M13 13L17 17" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
           </svg>
           <input
-            v-model="searchQuery"
-            type="text"
-            class="search__input"
-            placeholder="Поиск"
-            @input="updateSearch"
-          />
+  v-model="tracksStore.searchQuery"
+  type="text"
+  class="search__input"
+  placeholder="Поиск"
+/>
         </div>
         <button class="header__logout" @click="handleLogout">
           <svg
@@ -40,33 +39,52 @@
       <!-- КОНТЕНТ -->
       <div class="main">
         <div class="main__centerblock">
-          <slot />  <!-- Содержимое страниц -->
+          
+          <slot />  
         </div>
 
         <div class="main__sidebar">
           <div class="sidebar__block">
             <div class="sidebar__list">
               <div class="sidebar__item">
-                <a href="#" class="sidebar__link">
-                  <img src="/img/playlist/playlist01.png" alt="Плейлист дня" class="sidebar__img" />
-                </a>
+                <NuxtLink to="/playlist/2" class="sidebar__link">
+                  <NuxtImg
+                    src="/img/playlist/playlist01.png"
+                    alt="Плейлист дня"
+                    class="sidebar__img"
+                    :placeholder="[5]"
+                    loading="lazy"
+                  />
+                </NuxtLink>
               </div>
               <div class="sidebar__item">
-                <a href="#" class="sidebar__link">
-                  <img src="/img/playlist/playlist02.png" alt="100 танцевальных хитов" class="sidebar__img" />
-                </a>
+                <NuxtLink to="/playlist/3" class="sidebar__link">
+                  <NuxtImg
+                    src="/img/playlist/playlist02.png"
+                    alt="Танцевальные хиты"
+                    class="sidebar__img"
+                    :placeholder="[5]"
+                    loading="lazy"
+                  />
+                </NuxtLink>
               </div>
               <div class="sidebar__item">
-                <a href="#" class="sidebar__link">
-                  <img src="/img/playlist/playlist03.png" alt="Инди-заряд" class="sidebar__img" />
-                </a>
+                <NuxtLink to="/playlist/4" class="sidebar__link">
+                  <NuxtImg
+                    src="/img/playlist/playlist03.png"
+                    alt="Инди-заряд"
+                    class="sidebar__img"
+                    :placeholder="[5]"
+                    loading="lazy"
+                  />
+                </NuxtLink>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- ПЛЕЕР (скрыт, пока нет трека) -->
+      <!-- ПЛЕЕР -->
       <PlayerBar v-if="currentTrack" :current-track="currentTrack" />
     </div>
   </div>
@@ -74,44 +92,38 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import Navbar from '@/components/Navbar.vue'
 import PlayerBar from '@/components/PlayerBar.vue'
 import { usePlayerStore } from '~/stores/player'
 import { useTracksStore } from '~/stores/tracks'
+import { useUserStore } from '~/stores/user'
 import { useHead } from '#app'
 
+
+
+const router = useRouter()
 const tracksStore = useTracksStore()
 const playerStore = usePlayerStore()
-const searchQuery = ref('')
-const isMenuOpen = ref(false)
+const userStore = useUserStore()
 
-useHead({
-  title: 'Skypro.Music',
-  meta: [
-    { name: 'description', content: 'Музыкальный сервис Skypro.Music' }
-  ]
-})
+
 
 onMounted(() => {
-  isMenuOpen.value = false
-  tracksStore.fetchTracks() // ← загружаем треки при старте
+  tracksStore.fetchTracks()
 })
 
-const toggleMenu = () => {
-  isMenuOpen.value = !isMenuOpen.value
-}
 
-const updateSearch = () => {}
 
+// ===== ВЫХОД =====
 const handleLogout = () => {
-  localStorage.clear()
-  tracksStore.clearTracks() // ← очищаем при выходе
-  window.location.href = '/login'
+  userStore.logout()
+  tracksStore.clearTracks()
+  router.push('/login')
 }
 
 const currentTrack = computed(() => playerStore.currentTrack)
 </script>
-
 
 <style scoped>
 /* ===== ЛЕВОЕ МЕНЮ ===== */
@@ -202,7 +214,6 @@ const currentTrack = computed(() => playerStore.currentTrack)
   justify-content: space-between;
   padding: 12px 24px;
   background: #181818;
- 
   margin-left: 244px;
 }
 
@@ -277,18 +288,15 @@ const currentTrack = computed(() => playerStore.currentTrack)
   padding-right: 20px;
 }
 
-
-
 /* ===== САЙДБАР ===== */
 .main__sidebar {
   max-width: 450px;
-  padding: 20px 80px 20px 90px;
+  padding: 20px 30px 20px 30px;
   overflow-y: auto;
 }
 
 .sidebar__block {
   height: 100%;
-  padding: 240px 0 0 0;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -322,6 +330,20 @@ const currentTrack = computed(() => playerStore.currentTrack)
   border-radius: 8px;
 }
 
+/* ===== АДАПТАЦИЯ ===== */
+@media (max-width: 1024px) {
+  .main__sidebar {
+    padding: 20px 10px 20px 10px;
+  }
+  .sidebar__item {
+    width: 200px;
+    height: 120px;
+  }
+  .sidebar__item:not(:last-child) {
+    margin-bottom: 20px;
+  }
+}
+
 @media (max-width: 768px) {
   .main__nav,
   .main__sidebar {
@@ -330,6 +352,14 @@ const currentTrack = computed(() => playerStore.currentTrack)
   .main__header,
   .main {
     margin-left: 0;
+  }
+  .main {
+    padding: 12px 12px;
+    gap: 0;
+    height: calc(100vh - 60px);
+  }
+  .main__centerblock {
+    padding-right: 0;
   }
 }
 </style>

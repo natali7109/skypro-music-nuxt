@@ -4,7 +4,9 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   css: ['~/assets/css/main.css'],
   modules: [
-    '@pinia/nuxt'   
+    '@nuxt/test-utils',
+    '@pinia/nuxt',  
+    '@nuxt/image' 
   ],
   app: {
     head: {

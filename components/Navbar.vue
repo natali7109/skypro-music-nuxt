@@ -2,10 +2,16 @@
   <nav class="main__nav">
     <!-- Логотип (ссылка на Треки) -->
     <NuxtLink to="/" class="nav__logo-link">
-      <div class="nav__logo">
-        <img src="/logo.png" alt="Skypro.Music" class="logo__image" />
-      </div>
-    </NuxtLink>
+  <div class="nav__logo">
+    <NuxtImg
+      src="/logo.png"
+      alt="Skypro.Music"
+      class="logo__image"
+      
+      
+    />
+  </div>
+</NuxtLink>
 
     <!-- Бургер -->
     <div class="nav__burger" @click="toggleMenu">
@@ -97,11 +103,13 @@ const handleLogout = () => {
 
 .menu__list {
   padding: 18px 0 10px 0;
+  list-style: none;
 }
 
 .menu__item {
   padding: 5px 0;
   margin-bottom: 16px;
+  list-style: none;
 }
 
 .menu__link {

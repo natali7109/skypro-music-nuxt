@@ -60,23 +60,23 @@ export const usePlayerStore = defineStore('player', {
       return this.shuffle ? this.shuffledPlaylist : this.playlist
     },
     getNextTrack() {
-      const list = this.getCurrentPlaylist()
-      if (!list.length) return null
-      const currentId = this.currentTrack?._id
-      const currentIndex = list.findIndex(t => String(t._id) === String(currentId))
-      if (currentIndex === -1) return list[0] || null
-      const nextIndex = (currentIndex + 1) % list.length
-      return list[nextIndex] || null
-    },
+  const list = this.getCurrentPlaylist()
+  if (!list.length) return null
+  const currentId = this.currentTrack?._id
+  const currentIndex = list.findIndex(t => String(t._id) === String(currentId))
+  if (currentIndex === -1) return list[0] || null
+  const nextIndex = currentIndex + 1
+  return nextIndex < list.length ? list[nextIndex] : null
+},
     getPrevTrack() {
-      const list = this.getCurrentPlaylist()
-      if (!list.length) return null
-      const currentId = this.currentTrack?._id
-      const currentIndex = list.findIndex(t => String(t._id) === String(currentId))
-      if (currentIndex === -1) return list[list.length - 1] || null
-      const prevIndex = (currentIndex - 1 + list.length) % list.length
-      return list[prevIndex] || null
-    },
+  const list = this.getCurrentPlaylist()
+  if (!list.length) return null
+  const currentId = this.currentTrack?._id
+  const currentIndex = list.findIndex(t => String(t._id) === String(currentId))
+  if (currentIndex === -1) return list[list.length - 1] || null
+  const prevIndex = currentIndex - 1
+  return prevIndex >= 0 ? list[prevIndex] : null
+},
     resetPlayer() {
       this.currentTrack = null
       this.isPlaying = false

@@ -6,6 +6,7 @@ export const useTracksStore = defineStore('tracks', {
     loading: false,
     error: null,
     loaded: false,
+    searchQuery: '', 
   }),
 
   actions: {
@@ -28,6 +29,24 @@ export const useTracksStore = defineStore('tracks', {
     clearTracks() {
       this.allTracks = []
       this.loaded = false
+    }
+  },
+
+  
+  getters: {
+    filteredTracks: (state) => {
+      
+      if (!state.searchQuery || !state.searchQuery.trim()) {
+        return state.allTracks
+      }
+
+      const query = state.searchQuery.toLowerCase().trim()
+      
+      // Фильтруем по названию трека
+      return state.allTracks.filter(track => 
+        track.title?.toLowerCase().includes(query) || 
+        track.name?.toLowerCase().includes(query)
+      )
     }
   }
 })

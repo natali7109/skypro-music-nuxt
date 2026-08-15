@@ -4,6 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "test": "vitest",
+    "test:run": "vitest run",
     "dev": "nuxt dev",
     "build": "nuxt build",
     "generate": "nuxt generate",
@@ -11,9 +13,17 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
+    "@nuxt/image": "^2.0.0",
     "@pinia/nuxt": "^1.0.1",
     "nuxt": "^3.15.0",
     "pinia": "^4.0.2",
     "vue": "^3.5.0"
+  },
+  "devDependencies": {
+    "@nuxt/test-utils": "^4.1.0",
+    "@vitejs/plugin-vue": "^6.0.8",
+    "@vue/test-utils": "^2.4.11",
+    "happy-dom": "^20.11.2",
+    "vitest": "^4.1.10"
   }
 }
