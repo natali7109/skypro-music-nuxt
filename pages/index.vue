@@ -1,198 +1,133 @@
 <template>
-  <div class="wrapper">
-    <div class="container">
-      <div class="main">
-        <Navbar />
-        <div class="main__centerblock">
-          <FilterControls
-            @update:search="searchQuery = $event"
-            @update:filter="filterBy = $event"
-          />
-          <Playlist
-            :tracks="tracks"
-            :search-query="searchQuery"
-            :filter-by="filterBy"
-            @select="selectTrack"
-          />
-        </div>
-        <div class="main__sidebar">
-          <div class="sidebar__personal">
-            <span class="sidebar__personal-name">Войти</span>
-            <div class="sidebar__icon"></div>
-          </div>
-          <div class="sidebar__block">
-            <div class="sidebar__list">
-              <div class="sidebar__item">
-                <a href="#" class="sidebar__link">
-                  <img
-                    src="/img/playlist/playlist01.png"
-                    alt="Плейлист 1"
-                    class="sidebar__img"
-                  />
-                </a>
-              </div>
-              <div class="sidebar__item">
-                <a href="#" class="sidebar__link">
-                  <img
-                    src="/img/playlist/playlist02.png"
-                    alt="Плейлист 2"
-                    class="sidebar__img"
-                  />
-                </a>
-              </div>
-              <div class="sidebar__item">
-                <a href="#" class="sidebar__link">
-                  <img
-                    src="/img/playlist/playlist03.png"
-                    alt="Плейлист 3"
-                    class="sidebar__img"
-                  />
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
+  <div>
+    <h2 class="centerblock__h2">Треки</h2>
+
+    <FilterControls />
+
+    <!-- Скелетон во время загрузки -->
+    <div v-if="pending" class="skeleton-wrapper">
+      <div v-for="n in 10" :key="n" class="skeleton-item">
+        <div class="skeleton-line"></div>
+        <div class="skeleton-line short"></div>
       </div>
-      <PlayerBar :current-track="currentTrack" />
     </div>
+
+    <!-- Ошибка -->
+    <div v-else-if="error" class="error-message">
+      Не удалось загрузить треки: {{ error.message }}
+    </div>
+
+    <!-- Список треков -->
+    <Playlist
+      v-else
+      :tracks="tracksStore.allTracks"
+      :search-query="filterStore.searchQuery"
+      :sort-by="filterStore.sortBy"
+      :selected-authors="filterStore.selectedAuthors"
+      :selected-genres="filterStore.selectedGenres"
+      :selected-years="filterStore.selectedYears"
+      @select="selectTrack"
+    />
   </div>
 </template>
 
 <script setup>
-import { ref } from "vue";
-import { tracks as allTracks } from "../data/tracks";
+import { watchEffect } from 'vue'
+import FilterControls from '@/components/FilterControls.vue'
+import Playlist from '@/components/Playlist.vue'
+import { usePlayerStore } from '~/stores/player'
+import { useFiltersStore } from '~/stores/filters'
+import { useTracksStore } from '~/stores/tracks'
 
-const tracks = ref(allTracks);
-const searchQuery = ref("");
-const filterBy = ref(null);
-const currentTrack = ref(null);
+const tracksStore = useTracksStore()
+const playerStore = usePlayerStore()
+const filterStore = useFiltersStore()
+
+// Ленивая загрузка треков (не блокирует рендеринг)
+const { data: tracksData, pending, error } = await useFetch(
+  'https://webdev-music-003b5b991590.herokuapp.com/catalog/track/all/',
+  {
+    lazy: true,
+    transform: (response) => response.data || [],
+  }
+)
+
+// Синхронизация с хранилищем, если данные ещё не загружены
+if (tracksData.value && tracksData.value.length && !tracksStore.allTracks.length) {
+  tracksStore.allTracks = tracksData.value
+  filterStore.setAllTracks(tracksData.value)
+  playerStore.setPlaylist(tracksData.value)
+}
+
+// Реактивное обновление при изменении треков (если они изменятся в сторе)
+watchEffect(() => {
+  if (tracksStore.allTracks.length) {
+    filterStore.setAllTracks(tracksStore.allTracks)
+    playerStore.setPlaylist(tracksStore.allTracks)
+    console.log('📋 Плейлист передан в плеер, треков:', tracksStore.allTracks.length)
+  }
+})
 
 const selectTrack = (track) => {
-  currentTrack.value = track;
-};
+  playerStore.setCurrentTrack(track)
+}
+
+// Отладочный лог (можно убрать позже)
+watchEffect(() => {
+  console.log('Фильтры изменились:', {
+    search: filterStore.searchQuery,
+    authors: filterStore.selectedAuthors,
+    genres: filterStore.selectedGenres,
+    years: filterStore.selectedYears,
+    sort: filterStore.sortBy
+  })
+})
 </script>
 
 <style scoped>
-.wrapper {
-  width: 100%;
-  min-height: 100%;
-  overflow: hidden;
-  background-color: #383838;
-}
-
-.container {
-  max-width: 1920px;
-  height: 100vh;
-  margin: 0 auto;
-  position: relative;
-  background-color: #181818;
-}
-
-.main {
-  flex: 1 1 auto;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  height: calc(100vh - 73px);
-  overflow: hidden;
-}
-
-.main__centerblock {
-  width: auto;
-  flex-grow: 3;
-  padding: 20px 40px 20px 111px;
-  overflow-y: auto;
-}
-
-.main__sidebar {
-  max-width: 418px;
-  padding: 20px 90px 20px 78px;
-}
-
-.sidebar__personal {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  padding: 12px 0 15px 0;
-}
-
-.sidebar__personal-name {
-  font-size: 16px;
-  line-height: 24px;
+.centerblock__h2 {
+  font-size: 64px;
+  font-weight: 400;
+  line-height: 72px;
+  letter-spacing: -0.8px;
   color: #ffffff;
-  margin-right: 16px;
+  margin-bottom: 45px;
 }
 
-.sidebar__icon {
-  width: 43px;
-  height: 43px;
-  background-color: #313131;
-  border-radius: 50%;
-  cursor: pointer;
-}
-
-.sidebar__block {
-  height: 100%;
-  padding: 20px 0 0 0;
+.skeleton-wrapper {
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
+  gap: 12px;
 }
 
-.sidebar__list {
+.skeleton-item {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 30px;
-}
-
-.sidebar__item {
-  width: 250px;
-  height: 150px;
-}
-
-.sidebar__link {
-  width: 100%;
-  height: 100%;
-  display: block;
-}
-
-.sidebar__img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+  gap: 8px;
+  padding: 16px;
+  background: #2a2a2a;
   border-radius: 8px;
 }
 
-@media (max-width: 1024px) {
-  .main__sidebar {
-    padding: 20px 40px 20px 40px;
-  }
-  .sidebar__item {
-    width: 200px;
-    height: 120px;
-  }
-  .main__centerblock {
-    padding: 20px 24px 20px 24px;
-  }
+.skeleton-line {
+  height: 16px;
+  background: #3a3a3a;
+  border-radius: 4px;
+  animation: pulse 1.5s infinite;
 }
 
-@media (max-width: 768px) {
-  .main__nav {
-    width: 60px;
-    padding: 20px 10px;
-  }
-  .nav__logo {
-    width: 40px;
-  }
-  .logo__image {
-    width: 40px;
-  }
-  .main__sidebar {
-    display: none;
-  }
-  .main__centerblock {
-    padding: 20px 16px;
-  }
+.skeleton-line.short {
+  width: 60%;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.error-message {
+  color: #ff6b6b;
+  padding: 20px;
+  text-align: center;
 }
 </style>
