@@ -41,6 +41,8 @@ const errorMessage = ref('')
 
 const handleLogin = async () => {
   errorMessage.value = ''
+
+  
   loading.value = true
 
   try {

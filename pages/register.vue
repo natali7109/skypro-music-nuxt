@@ -41,6 +41,7 @@ const errorMessage = ref('')
 
 const handleRegister = async () => {
   errorMessage.value = ''
+  
   loading.value = true
 
   try {

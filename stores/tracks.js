@@ -21,7 +21,8 @@ export const useTracksStore = defineStore('tracks', {
         this.allTracks = data.data || []
         this.loaded = true
       } catch (err) {
-        this.error = err.message
+        this.error = 'Сервер временно недоступен. Попробуйте позже.'
+  console.error('Ошибка загрузки треков:', err)
       } finally {
         this.loading = false
       }
