@@ -44,18 +44,22 @@
 </template>
 
 <script setup>
+definePageMeta({
+  middleware: 'auth'
+})
+
 import { computed, onMounted } from 'vue'
 import Track from '@/components/Track.vue'
 import { usePlayerStore } from '~/stores/player'
 import { useFavoritesStore } from '~/stores/favorites'
 import { useTracksStore } from '~/stores/tracks'
 
-// Сторы
+
 const playerStore = usePlayerStore()
 const favoritesStore = useFavoritesStore()
 const tracksStore = useTracksStore()
 
-// Ленивая загрузка всех треков (не блокирует рендеринг)
+// Ленивая загрузка всех треков 
 const { data: allTracks, pending, error } = await useFetch(
   'https://webdev-music-003b5b991590.herokuapp.com/catalog/track/all/',
   {
@@ -64,8 +68,6 @@ const { data: allTracks, pending, error } = await useFetch(
   }
 )
 
-// Синхронизируем загруженные треки со стором (чтобы другие страницы тоже их имели)
-// Если в сторе уже есть данные, то не перезаписываем, иначе сохраняем
 if (allTracks.value && allTracks.value.length && !tracksStore.allTracks.length) {
   tracksStore.allTracks = allTracks.value
 }

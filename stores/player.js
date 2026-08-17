@@ -1,6 +1,19 @@
 import { defineStore } from 'pinia'
 
 export const usePlayerStore = defineStore('player', {
+  actions: {
+  resetPlayer() {
+    this.currentTrack = null
+    this.isPlaying = false
+    this.progress = 0
+    if (this.audioRef) {
+      this.audioRef.pause()
+      this.audioRef.src = ''
+      this.audioRef.load()
+    }
+    }
+  }, 
+  
   state: () => ({
     currentTrack: null,
     playlist: [],
@@ -79,12 +92,15 @@ export const usePlayerStore = defineStore('player', {
 },
     resetPlayer() {
       this.currentTrack = null
-      this.isPlaying = false
-      this.progress = 0
-      if (this.audioRef) {
-        this.audioRef.pause()
-        this.audioRef.currentTime = 0
+  this.isPlaying = false
+  this.progress = 0
+  if (this.audioRef) {
+    this.audioRef.pause()
+    this.audioRef.src = ''
+    this.audioRef.load()
+    this.audioRef = null
       }
     }
   }
 })
+

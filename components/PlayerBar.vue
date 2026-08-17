@@ -98,9 +98,14 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import { usePlayerStore } from '~/stores/player'
+import { useUserStore } from '~/stores/user' 
 import { useAudioPlayer } from '~/composables/useAudioPlayer'
+import { navigateTo } from 'nuxt/app'
+import { useFavoritesStore } from '~/stores/favorites'
 
 const playerStore = usePlayerStore()
+const userStore = useUserStore() 
+const favoritesStore = useFavoritesStore()
 const audioPlayer = ref(null)
 
 const {
@@ -116,11 +121,28 @@ const {
   initPlayer,
 } = useAudioPlayer()
 
+ 
 onMounted(() => {
   if (audioPlayer.value) {
     initPlayer(audioPlayer.value)
   }
+
+   
+  if (playerStore.currentTrack && !playerStore.audioRef) {
+    playerStore.resetPlayer()
+  }
+
+  favoritesStore.load()
 })
+
+ 
+watch(() => playerStore.audioRef, (newVal) => {
+  if (!newVal && playerStore.currentTrack) {
+    playerStore.resetPlayer()
+  }
+})
+
+
 
 const canPrev = computed(() => {
   return playerStore.getPrevTrack() !== null
@@ -140,19 +162,21 @@ const handleProgressClick = (event) => {
 
 const isLiked = computed(() => {
   if (!playerStore.currentTrack) return false
-  const liked = JSON.parse(localStorage.getItem('likedTracks') || '[]')
-  return liked.includes(playerStore.currentTrack._id)
+  return favoritesStore.isLiked(playerStore.currentTrack._id)  
 })
 
+
 const toggleLike = () => {
+  if (!userStore.isAuthenticated) {
+    navigateTo('/register?message=Для выбора любимых треков зарегистрируйтесь')
+    return
+  }
+
   if (!playerStore.currentTrack) return
   const id = playerStore.currentTrack._id
-  const liked = JSON.parse(localStorage.getItem('likedTracks') || '[]')
-  const idx = liked.indexOf(id)
-  if (idx > -1) liked.splice(idx, 1)
-  else liked.push(id)
-  localStorage.setItem('likedTracks', JSON.stringify(liked))
+  favoritesStore.toggle(id)  
 }
+
 </script>
 
 <style scoped>

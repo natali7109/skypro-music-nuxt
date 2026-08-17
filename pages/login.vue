@@ -17,6 +17,9 @@
         <NuxtLink to="/register" class="btn btn-secondary">
           Зарегистрироваться
         </NuxtLink>
+        <NuxtLink to="/tracks" class="guest-link">
+          Войти без регистрации
+        </NuxtLink>
       </div>
 
       <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
@@ -185,6 +188,23 @@ form {
   color: #ffffff;
   border-color: #ad61ff;
 }
+
+
+.guest-link {
+  display: block;
+  margin-top: 12px;
+  color: #888888;
+  font-size: 14px;
+  text-align: center;
+  text-decoration: none;
+  transition: color 0.2s, text-decoration 0.2s;
+}
+
+.guest-link:hover {
+  color: #ad61ff;
+  text-decoration: underline;
+}
+
 
 .error {
   color: #ff6b6b;

@@ -6,12 +6,14 @@ export const useFavoritesStore = defineStore('favorites', {
   }),
 
   actions: {
-     
-    load() {
-      const stored = localStorage.getItem('likedTracks')
-      this.ids = stored ? JSON.parse(stored) : []
-    },
-
+    
+  load() {
+    const stored = localStorage.getItem('likedTracks')
+    this.ids = stored ? JSON.parse(stored) : []
+  },
+  save() {
+    localStorage.setItem('likedTracks', JSON.stringify(this.ids))
+  },
      
     add(id) {
       if (!this.ids.includes(id)) {

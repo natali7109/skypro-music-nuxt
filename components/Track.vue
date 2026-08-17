@@ -51,6 +51,9 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import { usePlayerStore } from '~/stores/player'
+import { useUserStore } from '~/stores/user'
+import { useFavoritesStore } from '~/stores/favorites' // ★ ДОБАВИТЬ ★
+import { navigateTo } from 'nuxt/app'
 
 const props = defineProps({
   track: {
@@ -60,6 +63,8 @@ const props = defineProps({
 })
 
 const playerStore = usePlayerStore()
+const userStore = useUserStore()
+const favoritesStore = useFavoritesStore() // ★ ДОБАВИТЬ ★
 
 // === ВЫБОР ТРЕКА (БЕЗ СНЯТИЯ) ===
 const selectTrack = () => {
@@ -73,9 +78,7 @@ const isActive = computed(() => {
 
 const isPlaying = computed(() => playerStore.isPlaying)
 
-// === ЛАЙКИ ===
-const isLiked = ref(false)
-
+// === ЛАЙКИ ★ ИСПРАВЛЕНО ★ ===
 const coverUrl = computed(() => {
   const logo = props.track.logo
   if (!logo) return null
@@ -85,23 +88,29 @@ const coverUrl = computed(() => {
   return null
 })
 
-onMounted(() => {
-  const likedTracks = JSON.parse(localStorage.getItem('likedTracks') || '[]')
-  isLiked.value = likedTracks.includes(props.track._id)
+// ★ ГОСТЬ НЕ ВИДИТ ЛАЙКИ ★
+const isLiked = computed(() => {
+  if (!userStore.isAuthenticated) return false
+  if (!props.track?._id) return false
+  return favoritesStore.isLiked(props.track._id)
 })
 
-const toggleLike = () => {
-  isLiked.value = !isLiked.value
-  const likedTracks = JSON.parse(localStorage.getItem('likedTracks') || '[]')
-  if (isLiked.value) {
-    if (!likedTracks.includes(props.track._id)) {
-      likedTracks.push(props.track._id)
-    }
-  } else {
-    const index = likedTracks.indexOf(props.track._id)
-    if (index !== -1) likedTracks.splice(index, 1)
+onMounted(() => {
+  // ★ ЗАГРУЖАЕМ ЛАЙКИ ТОЛЬКО ДЛЯ АВТОРИЗОВАННЫХ ★
+  if (userStore.isAuthenticated) {
+    favoritesStore.load()
   }
-  localStorage.setItem('likedTracks', JSON.stringify(likedTracks))
+})
+
+// ★ ИСПРАВЛЕННЫЙ ToggleLike ★
+const toggleLike = () => {
+  if (!userStore.isAuthenticated) {
+    navigateTo('/register?message=Для выбора любимых треков зарегистрируйтесь')
+    return
+  }
+
+  if (!props.track?._id) return
+  favoritesStore.toggle(props.track._id)
 }
 
 const formatDuration = (seconds) => {

@@ -1,4 +1,6 @@
 import { defineStore } from 'pinia'
+import { usePlayerStore } from '~/stores/player'
+import { useFiltersStore } from '~/stores/filters' // ★ ДОБАВИТЬ ★
 
 export const useUserStore = defineStore('user', {
   state: () => ({
@@ -34,7 +36,7 @@ export const useUserStore = defineStore('user', {
       }
     },
 
-    // Выход — очищаем всё
+    // ★ ИСПРАВЛЕННЫЙ ВЫХОД ★
     logout() {
       this.token = null
       this.user = null
@@ -44,6 +46,16 @@ export const useUserStore = defineStore('user', {
         localStorage.removeItem('token')
         localStorage.removeItem('user')
       }
+
+      // ★ СБРАСЫВАЕМ ПЛЕЕР ★
+      const playerStore = usePlayerStore()
+      playerStore.resetPlayer()
+
+      // ★ СБРАСЫВАЕМ ФИЛЬТРЫ ★
+      const filtersStore = useFiltersStore()
+      filtersStore.resetFilters()
+
+      // ★ НЕ ТРОГАЕМ ЛАЙКИ (они остаются в localStorage) ★
     },
 
     // Обновление данных пользователя (если понадобится)

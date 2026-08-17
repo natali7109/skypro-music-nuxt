@@ -18,7 +18,7 @@
           Войти
         </NuxtLink>
       </div>
-
+<p v-if="message" class="info-message">{{ message }}</p>
       <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
     </form>
   </div>
@@ -27,21 +27,23 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useRoute } from 'vue-router' // ★ ДОБАВИТЬ ★
 import { useUserStore } from '~/stores/user'
 
 definePageMeta({ layout: 'auth' })
 
 const router = useRouter()
+const route = useRoute() // ★ ДОБАВИТЬ ★
 const userStore = useUserStore()
 
 const email = ref('')
 const password = ref('')
 const loading = ref(false)
 const errorMessage = ref('')
+const message = ref(route.query.message || '') // ★ ДОБАВИТЬ ★
 
 const handleRegister = async () => {
   errorMessage.value = ''
-  
   loading.value = true
 
   try {
@@ -197,7 +199,12 @@ form {
   color: #ffffff;
   border-color: #ad61ff;
 }
-
+.info-message {
+  color: #ad61ff;
+  margin-top: 14px;
+  text-align: center;
+  font-size: 14px;
+}
 .error {
   color: #ff6b6b;
   margin-top: 14px;

@@ -60,31 +60,37 @@ export function useAudioPlayer() {
   }
 
   const togglePlay = () => {
-    const audio = playerStore.audioRef
-    if (!audio) {
-      console.warn('Плеер не инициализирован')
-      return
-    }
-
-    if (playerStore.isPlaying) {
-      audio.pause()
-      playerStore.setPlaying(false)
-    } else {
-      audio.play()
-        .then(() => playerStore.setPlaying(true))
-        .catch((err) => {
-           
-          if (err.name === 'NotSupportedError' || err.name === 'AbortError') {
-            if (playerStore.currentTrack) {
-              playTrack(playerStore.currentTrack)
-            }
-          } else {
-            console.warn('Не удалось воспроизвести:', err)
-            playerStore.setPlaying(false)
-          }
-        })
-    }
+  const audio = playerStore.audioRef
+  if (!audio) {
+    console.warn('Плеер не инициализирован')
+    return
   }
+
+  // ★ ЕСЛИ ТРЕК ВЫБРАН, НО НЕ ЗАГРУЖЕН ★
+  if (playerStore.currentTrack && !audio.src) {
+    audio.src = playerStore.currentTrack.track_file
+    audio.load()
+    audio.play()
+      .then(() => playerStore.setPlaying(true))
+      .catch((err) => {
+        console.warn('Не удалось воспроизвести:', err)
+        playerStore.setPlaying(false)
+      })
+    return
+  }
+
+  if (playerStore.isPlaying) {
+    audio.pause()
+    playerStore.setPlaying(false)
+  } else {
+    audio.play()
+      .then(() => playerStore.setPlaying(true))
+      .catch((err) => {
+        console.warn('Не удалось воспроизвести:', err)
+        playerStore.setPlaying(false)
+      })
+  }
+}
 
   const handleTimeUpdate = () => {
     const audio = playerStore.audioRef

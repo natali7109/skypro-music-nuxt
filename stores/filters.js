@@ -12,9 +12,19 @@ export const useFiltersStore = defineStore('filters', {
   }),
 
   actions: {
-    setSearch(query) {
-      this.searchQuery = query
-    },
+
+    resetFilters() {
+    this.searchQuery = ''
+    this.selectedAuthors = []
+    this.selectedGenres = []
+    this.selectedYears = []
+    this.sortBy = 'default'
+    this.activeFilter = null
+  },
+  
+  setSearch(query) {
+    this.searchQuery = query
+  },
     setAllTracks(tracks) {
       this.allTracks = tracks
     },

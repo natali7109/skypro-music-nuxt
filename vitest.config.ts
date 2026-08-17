@@ -6,13 +6,17 @@ export default defineConfig({
   plugins: [vue()],
   resolve: {
     alias: {
-      '~': resolve(__dirname, '.'),
-      '@': resolve(__dirname, '.'),
+      '~': resolve(__dirname),
+      '@': resolve(__dirname),
+      '#app': resolve(__dirname, 'node_modules/nuxt/dist/app'),
+      '#build': resolve(__dirname, '.nuxt'), // ★ ДОБАВИЛИ ★
     },
   },
   test: {
     globals: true,
-    environment: 'happy-dom',
-    setupFiles: ['tests/setup.js'],
+    environment: 'jsdom', // ★ ИЗМЕНИЛИ С 'node' НА 'jsdom' ★
+    include: ['tests/**/*.test.js', 'tests/**/*.spec.js'],
+    exclude: ['node_modules', '.nuxt', 'dist'],
+    setupFiles: ['./tests/setup.js'],
   },
 })
