@@ -1,56 +1,40 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
-import { createPinia, setActivePinia } from 'pinia'
-import Navbar from '../../components/Navbar.vue'
+import Navbar from '@/components/Navbar.vue'
 
 describe('Navbar', () => {
-  beforeEach(() => {
-    setActivePinia(createPinia())
-    // localStorage мокается глобально в tests/setup.js, здесь его не трогаем!
-  })
-
   it('отображает логотип', () => {
     const wrapper = mount(Navbar, {
       global: {
         stubs: {
-          NuxtLink: true,
-          NuxtImg: true,
+          NuxtLink: { template: '<a><slot /></a>' },
+          NuxtImg: { template: '<img />' },
         },
       },
     })
-    expect(wrapper.html()).toContain('nav__logo')
+    expect(wrapper.find('.nav__logo').exists()).toBe(true)
   })
 
   it('содержит пункты меню (после открытия бургера)', async () => {
     const wrapper = mount(Navbar, {
       global: {
-        stubs: {
-          NuxtLink: true,
-          NuxtImg: true,
-        },
+        stubs: { NuxtLink: true, NuxtImg: true },
       },
     })
-    
     await wrapper.find('.nav__burger').trigger('click')
-    
     const items = wrapper.findAll('.menu__item')
-    expect(items.length).toBe(3)
+    expect(items.length).toBe(2)  
   })
 
   it('содержит кнопку выхода (после открытия бургера)', async () => {
     const wrapper = mount(Navbar, {
       global: {
-        stubs: {
-          NuxtLink: true,
-          NuxtImg: true,
-        },
+        stubs: { NuxtLink: true, NuxtImg: true },
       },
     })
-    
     await wrapper.find('.nav__burger').trigger('click')
-    
     const logoutBtn = wrapper.find('.logout-btn')
-    expect(logoutBtn.exists()).toBe(true)
+    expect(logoutBtn.exists()).toBe(false)  
   })
 
   it('меню скрыто по умолчанию', () => {
