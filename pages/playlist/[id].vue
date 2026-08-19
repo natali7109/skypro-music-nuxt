@@ -24,7 +24,12 @@
         <span class="col-artist">ИСПОЛНИТЕЛЬ</span>
         <span class="col-album">АЛЬБОМ</span>
         <span class="col-time">
-          <NuxtImg src="/img/icon/watch.svg" alt="Длительность" class="col-time-icon" :placeholder="[5]" />
+          <NuxtImg
+            src="/img/icon/watch.svg"
+            alt="Длительность"
+            class="col-time-icon"
+            :placeholder="[5]"
+          />
         </span>
       </div>
 
@@ -41,62 +46,66 @@
 </template>
 
 <script setup>
-import FilterControls from '@/components/FilterControls.vue'
-import { computed, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
-import Track from '@/components/Track.vue'
-import { usePlayerStore } from '~/stores/player'
-import { useSelectionsStore } from '~/stores/selections'
-import { useTracksStore } from '~/stores/tracks'
-import { useFiltersStore } from '~/stores/filters'
+import FilterControls from "@/components/FilterControls.vue";
+import { computed, onMounted } from "vue";
+import { useRoute } from "vue-router";
+import Track from "@/components/Track.vue";
+import { usePlayerStore } from "~/stores/player";
+import { useSelectionsStore } from "~/stores/selections";
+import { useTracksStore } from "~/stores/tracks";
+import { useFiltersStore } from "~/stores/filters";
 
-const route = useRoute()
-const playerStore = usePlayerStore()
-const selectionsStore = useSelectionsStore()
-const tracksStore = useTracksStore()
-const filterStore = useFiltersStore()
+const route = useRoute();
+const playerStore = usePlayerStore();
+const selectionsStore = useSelectionsStore();
+const tracksStore = useTracksStore();
+const filterStore = useFiltersStore();
 
-const selectionId = route.params.id
+const selectionId = route.params.id;
 
 onMounted(async () => {
-  await selectionsStore.fetchSelectionById(selectionId)
-})
+  await selectionsStore.fetchSelectionById(selectionId);
+});
 
 const filteredTracks = computed(() => {
-  let list = tracksStore.allTracks.filter(track => {
-    const itemIds = selectionsStore.currentSelection?.items || []
-    return itemIds.includes(track._id)
-  })
+  let list = tracksStore.allTracks.filter((track) => {
+    const itemIds = selectionsStore.currentSelection?.items || [];
+    return itemIds.includes(track._id);
+  });
 
   if (filterStore.selectedAuthors.length) {
-    list = list.filter(t => filterStore.selectedAuthors.includes(t.author))
+    list = list.filter((t) => filterStore.selectedAuthors.includes(t.author));
   }
 
   if (filterStore.selectedGenres.length) {
-    list = list.filter(t => {
+    list = list.filter((t) => {
       if (Array.isArray(t.genre)) {
-        return t.genre.some(g => filterStore.selectedGenres.includes(g.toLowerCase()))
+        return t.genre.some((g) =>
+          filterStore.selectedGenres.includes(g.toLowerCase()),
+        );
       }
-      return filterStore.selectedGenres.includes(t.genre?.toLowerCase())
-    })
+      return filterStore.selectedGenres.includes(t.genre?.toLowerCase());
+    });
   }
 
-  if (filterStore.sortBy === 'newest') {
-    list.sort((a, b) => new Date(b.release_date) - new Date(a.release_date))
-  } else if (filterStore.sortBy === 'oldest') {
-    list.sort((a, b) => new Date(a.release_date) - new Date(b.release_date))
+  if (filterStore.sortBy === "newest") {
+    list.sort((a, b) => new Date(b.release_date) - new Date(a.release_date));
+  } else if (filterStore.sortBy === "oldest") {
+    list.sort((a, b) => new Date(a.release_date) - new Date(b.release_date));
   }
 
-  return list
-})
+  return list;
+});
 
-const loading = computed(() => selectionsStore.loading)
-const error = computed(() => selectionsStore.error)
-const selectionTitle = computed(() => selectionsStore.currentSelection?.name || 'Подборка')
+const loading = computed(() => selectionsStore.loading);
+const error = computed(() => selectionsStore.error);
+const selectionTitle = computed(
+  () => selectionsStore.currentSelection?.name || "Подборка",
+);
 
 const selectTrack = (track) => {
-  playerStore.setCurrentTrack(track)
-}
+  playerStore.setCurrentTrack(track);
+};
 </script>
 
 <style scoped>
@@ -136,8 +145,13 @@ const selectTrack = (track) => {
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
 }
 
 .error-message {
@@ -163,9 +177,15 @@ const selectTrack = (track) => {
   text-transform: uppercase;
 }
 
-.col-track { width: 680px; }
-.col-artist { width: 560px; }
-.col-album { width: 520px; }
+.col-track {
+  width: 680px;
+}
+.col-artist {
+  width: 560px;
+}
+.col-album {
+  width: 520px;
+}
 .col-time {
   width: 20px;
   text-align: right;

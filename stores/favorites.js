@@ -1,50 +1,45 @@
-import { defineStore } from 'pinia'
+import { defineStore } from "pinia";
 
-export const useFavoritesStore = defineStore('favorites', {
+export const useFavoritesStore = defineStore("favorites", {
   state: () => ({
-    ids: []
+    ids: [],
   }),
 
   actions: {
-    
-  load() {
-    const stored = localStorage.getItem('likedTracks')
-    this.ids = stored ? JSON.parse(stored) : []
-  },
-  save() {
-    localStorage.setItem('likedTracks', JSON.stringify(this.ids))
-  },
-     
+    load() {
+      const stored = localStorage.getItem("likedTracks");
+      this.ids = stored ? JSON.parse(stored) : [];
+    },
+    save() {
+      localStorage.setItem("likedTracks", JSON.stringify(this.ids));
+    },
+
     add(id) {
       if (!this.ids.includes(id)) {
-        this.ids.push(id)
-        this.save()
+        this.ids.push(id);
+        this.save();
       }
     },
 
-     
     remove(id) {
-      this.ids = this.ids.filter(item => item !== id)
-      this.save()
+      this.ids = this.ids.filter((item) => item !== id);
+      this.save();
     },
 
-     
     toggle(id) {
       if (this.ids.includes(id)) {
-        this.remove(id)
+        this.remove(id);
       } else {
-        this.add(id)
+        this.add(id);
       }
     },
 
-     
     save() {
-      localStorage.setItem('likedTracks', JSON.stringify(this.ids))
+      localStorage.setItem("likedTracks", JSON.stringify(this.ids));
     },
 
-     
     isLiked(id) {
-      return this.ids.includes(id)
-    }
-  }
-})
+      return this.ids.includes(id);
+    },
+  },
+});

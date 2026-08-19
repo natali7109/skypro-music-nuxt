@@ -18,7 +18,8 @@ export const useTracks = () => {
       const data = await response.json();
       tracks.value = data.data || [];
     } catch (e) {
-      error.value = e instanceof Error ? e.message : "Ошибка при загрузке треков :(";
+      error.value =
+        e instanceof Error ? e.message : "Ошибка при загрузке треков :(";
     } finally {
       loading.value = false;
     }
@@ -27,7 +28,7 @@ export const useTracks = () => {
   const formatDuration = (seconds) => {
     const minutes = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
-    return `${minutes}:${secs.toString().padStart(2, '0')}`;
+    return `${minutes}:${secs.toString().padStart(2, "0")}`;
   };
 
   return {

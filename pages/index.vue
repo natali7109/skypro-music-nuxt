@@ -4,7 +4,6 @@
 
     <FilterControls />
 
-    <!-- Скелетон -->
     <div v-if="pending" class="skeleton-wrapper">
       <div v-for="n in 10" :key="n" class="skeleton-item">
         <div class="skeleton-line"></div>
@@ -12,7 +11,6 @@
       </div>
     </div>
 
-    <!-- Ошибка -->
     <div v-else-if="error" class="error-message">
       Не удалось загрузить треки: {{ error.message }}
     </div>
@@ -33,49 +31,53 @@
 </template>
 
 <script setup>
-import { watchEffect } from 'vue'
-import FilterControls from '@/components/FilterControls.vue'
-import Playlist from '@/components/Playlist.vue'
-import { usePlayerStore } from '~/stores/player'
-import { useFiltersStore } from '~/stores/filters'
-import { useTracksStore } from '~/stores/tracks'
+import { watchEffect } from "vue";
+import FilterControls from "@/components/FilterControls.vue";
+import Playlist from "@/components/Playlist.vue";
+import { usePlayerStore } from "~/stores/player";
+import { useFiltersStore } from "~/stores/filters";
+import { useTracksStore } from "~/stores/tracks";
 
-const tracksStore = useTracksStore()
-const playerStore = usePlayerStore()
-const filterStore = useFiltersStore()
+const tracksStore = useTracksStore();
+const playerStore = usePlayerStore();
+const filterStore = useFiltersStore();
 
-// Загружаем треки, если их еще нет
 if (!tracksStore.allTracks.length) {
-  tracksStore.fetchTracks()
+  tracksStore.fetchTracks();
 }
 
-// Ленивая загрузка с API (для скелетона и т.д.)
-const { data: tracksData, pending, error } = await useFetch(
-  'https://webdev-music-003b5b991590.herokuapp.com/catalog/track/all/',
+const {
+  data: tracksData,
+  pending,
+  error,
+} = await useFetch(
+  "https://webdev-music-003b5b991590.herokuapp.com/catalog/track/all/",
   {
     lazy: true,
     transform: (response) => response.data || [],
-  }
-)
+  },
+);
 
-// Синхронизация с хранилищем
-if (tracksData.value && tracksData.value.length && !tracksStore.allTracks.length) {
-  tracksStore.allTracks = tracksData.value
-  filterStore.setAllTracks(tracksData.value)
-  playerStore.setPlaylist(tracksData.value)
+if (
+  tracksData.value &&
+  tracksData.value.length &&
+  !tracksStore.allTracks.length
+) {
+  tracksStore.allTracks = tracksData.value;
+  filterStore.setAllTracks(tracksData.value);
+  playerStore.setPlaylist(tracksData.value);
 }
 
-// Реактивное обновление
 watchEffect(() => {
   if (tracksStore.allTracks.length) {
-    filterStore.setAllTracks(tracksStore.allTracks)
-    playerStore.setPlaylist(tracksStore.allTracks)
+    filterStore.setAllTracks(tracksStore.allTracks);
+    playerStore.setPlaylist(tracksStore.allTracks);
   }
-})
+});
 
 const selectTrack = (track) => {
-  playerStore.setCurrentTrack(track)
-}
+  playerStore.setCurrentTrack(track);
+};
 </script>
 
 <style scoped>
@@ -115,8 +117,13 @@ const selectTrack = (track) => {
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
 }
 
 .error-message {

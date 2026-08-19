@@ -14,7 +14,7 @@
   justify-content: center;
   min-height: 100vh;
   background: #181818;
-  font-family: 'Montserrat', sans-serif;
+  font-family: "Montserrat", sans-serif;
 }
 
 .not-found__title {

@@ -33,58 +33,64 @@
 </template>
 
 <script setup>
-import { useUserStore } from '~/stores/user'
+import { useUserStore } from "~/stores/user";
 
-import { watchEffect } from 'vue'
-import FilterControls from '@/components/FilterControls.vue'
-import Playlist from '@/components/Playlist.vue'
-import { usePlayerStore } from '~/stores/player'
-import { useFiltersStore } from '~/stores/filters'
-import { useTracksStore } from '~/stores/tracks'
+import { watchEffect } from "vue";
+import FilterControls from "@/components/FilterControls.vue";
+import Playlist from "@/components/Playlist.vue";
+import { usePlayerStore } from "~/stores/player";
+import { useFiltersStore } from "~/stores/filters";
+import { useTracksStore } from "~/stores/tracks";
 
-const tracksStore = useTracksStore()
-const playerStore = usePlayerStore()
-const userStore = useUserStore()
-const filterStore = useFiltersStore()
+const tracksStore = useTracksStore();
+const playerStore = usePlayerStore();
+const userStore = useUserStore();
+const filterStore = useFiltersStore();
 
 // Загружаем треки, если их еще нет
 if (!tracksStore.allTracks.length) {
-  tracksStore.fetchTracks()
+  tracksStore.fetchTracks();
 }
 
-
-const { data: tracksData, pending, error } = await useFetch(
-  'https://webdev-music-003b5b991590.herokuapp.com/catalog/track/all/',
+const {
+  data: tracksData,
+  pending,
+  error,
+} = await useFetch(
+  "https://webdev-music-003b5b991590.herokuapp.com/catalog/track/all/",
   {
     lazy: true,
     transform: (response) => response.data || [],
-  }
-)
+  },
+);
 
-if (tracksData.value && tracksData.value.length && !tracksStore.allTracks.length) {
-  tracksStore.allTracks = tracksData.value
-  filterStore.setAllTracks(tracksData.value)
-  playerStore.setPlaylist(tracksData.value)
+if (
+  tracksData.value &&
+  tracksData.value.length &&
+  !tracksStore.allTracks.length
+) {
+  tracksStore.allTracks = tracksData.value;
+  filterStore.setAllTracks(tracksData.value);
+  playerStore.setPlaylist(tracksData.value);
 }
 
 // Реактивное обновление
 watchEffect(() => {
   if (tracksStore.allTracks.length) {
-    filterStore.setAllTracks(tracksStore.allTracks)
-    playerStore.setPlaylist(tracksStore.allTracks)
+    filterStore.setAllTracks(tracksStore.allTracks);
+    playerStore.setPlaylist(tracksStore.allTracks);
   }
-})
+});
 
 const selectTrack = (track) => {
-  playerStore.setCurrentTrack(track)
-}
+  playerStore.setCurrentTrack(track);
+};
 
 onMounted(() => {
-  
   if (!userStore.isAuthenticated) {
-    playerStore.resetPlayer()
+    playerStore.resetPlayer();
   }
-})
+});
 </script>
 
 <style scoped>
@@ -124,8 +130,13 @@ onMounted(() => {
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
 }
 
 .error-message {

@@ -6,16 +6,27 @@
       <!-- ХЕДЕР -->
       <header class="main__header">
         <div class="header__search">
-          <svg class="search__icon" width="18" height="18" viewBox="0 0 18 18" fill="none">
-            <circle cx="8" cy="8" r="6.5" stroke="white" stroke-width="1.5"/>
-            <path d="M13 13L17 17" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+          <svg
+            class="search__icon"
+            width="18"
+            height="18"
+            viewBox="0 0 18 18"
+            fill="none"
+          >
+            <circle cx="8" cy="8" r="6.5" stroke="white" stroke-width="1.5" />
+            <path
+              d="M13 13L17 17"
+              stroke="white"
+              stroke-width="1.5"
+              stroke-linecap="round"
+            />
           </svg>
           <input
-  v-model="tracksStore.searchQuery"
-  type="text"
-  class="search__input"
-  placeholder="Поиск"
-/>
+            v-model="tracksStore.searchQuery"
+            type="text"
+            class="search__input"
+            placeholder="Поиск"
+          />
         </div>
         <button class="header__logout" @click="handleLogout">
           <svg
@@ -28,7 +39,14 @@
             stroke-linecap="round"
             stroke-linejoin="round"
           >
-            <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" />
+            <rect
+              x="3"
+              y="3"
+              width="18"
+              height="18"
+              rx="2"
+              stroke="currentColor"
+            />
             <path d="M15 9l3 3-3 3" stroke="currentColor" />
             <path d="M10 12h8" stroke="currentColor" />
             <path d="M8 3v18" stroke="currentColor" />
@@ -36,10 +54,9 @@
         </button>
       </header>
 
-      <!-- КОНТЕНТ -->
       <div class="main">
         <div class="main__centerblock">
-          <slot />  
+          <slot />
         </div>
 
         <div class="main__sidebar">
@@ -83,40 +100,38 @@
         </div>
       </div>
 
-      <!-- ПЛЕЕР -->
       <PlayerBar v-if="currentTrack" :current-track="currentTrack" />
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import Navbar from '@/components/Navbar.vue'
-import PlayerBar from '@/components/PlayerBar.vue'
-import { usePlayerStore } from '~/stores/player'
-import { useTracksStore } from '~/stores/tracks'
-import { useUserStore } from '~/stores/user'
-import { useHead } from '#app'
+import { ref, computed, onMounted } from "vue";
+import { useRouter } from "vue-router";
+import Navbar from "@/components/Navbar.vue";
+import PlayerBar from "@/components/PlayerBar.vue";
+import { usePlayerStore } from "~/stores/player";
+import { useTracksStore } from "~/stores/tracks";
+import { useUserStore } from "~/stores/user";
+import { useHead } from "#app";
 
-const router = useRouter()
-const tracksStore = useTracksStore()
-const playerStore = usePlayerStore()
-const userStore = useUserStore()
+const router = useRouter();
+const tracksStore = useTracksStore();
+const playerStore = usePlayerStore();
+const userStore = useUserStore();
 
 onMounted(() => {
-  tracksStore.fetchTracks()
-})
+  tracksStore.fetchTracks();
+});
 
 const handleLogout = () => {
-  userStore.logout()
-  tracksStore.clearTracks()
-  router.push('/login')
-}
+  userStore.logout();
+  tracksStore.clearTracks();
+  router.push("/login");
+};
 
-const currentTrack = computed(() => playerStore.currentTrack)
+const currentTrack = computed(() => playerStore.currentTrack);
 </script>
-
 
 <style scoped>
 /* ===== ЛЕВОЕ МЕНЮ ===== */

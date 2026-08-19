@@ -5,11 +5,11 @@
 </template>
 
 <script setup>
-import { useUserStore } from '~/stores/user'
+import { useUserStore } from "~/stores/user";
 
-const userStore = useUserStore()
+const userStore = useUserStore();
 
 if (process.client) {
-  userStore.initializeAuth()
+  userStore.initializeAuth();
 }
 </script>
