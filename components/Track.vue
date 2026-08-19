@@ -52,7 +52,7 @@
 import { ref, onMounted, computed } from 'vue'
 import { usePlayerStore } from '~/stores/player'
 import { useUserStore } from '~/stores/user'
-import { useFavoritesStore } from '~/stores/favorites' // ★ ДОБАВИТЬ ★
+import { useFavoritesStore } from '~/stores/favorites' 
 import { navigateTo } from 'nuxt/app'
 
 const props = defineProps({
@@ -64,7 +64,7 @@ const props = defineProps({
 
 const playerStore = usePlayerStore()
 const userStore = useUserStore()
-const favoritesStore = useFavoritesStore() // ★ ДОБАВИТЬ ★
+const favoritesStore = useFavoritesStore() 
 
 // === ВЫБОР ТРЕКА (БЕЗ СНЯТИЯ) ===
 const selectTrack = () => {
@@ -96,7 +96,7 @@ const isLiked = computed(() => {
 })
 
 onMounted(() => {
-  // ★ ЗАГРУЖАЕМ ЛАЙКИ ТОЛЬКО ДЛЯ АВТОРИЗОВАННЫХ ★
+  
   if (userStore.isAuthenticated) {
     favoritesStore.load()
   }

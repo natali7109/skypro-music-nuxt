@@ -3,13 +3,7 @@
     <!-- Логотип (ссылка на Треки) -->
     <NuxtLink to="/" class="nav__logo-link">
   <div class="nav__logo">
-    <NuxtImg
-      src="/logo.png"
-      alt="Skypro.Music"
-      class="logo__image"
-      
-      
-    />
+    <NuxtImg src="/logo.png" alt="Skypro.Music" class="logo__image" />
   </div>
 </NuxtLink>
 
@@ -29,16 +23,19 @@
         <li class="menu__item">
           <NuxtLink to="/favorites" class="menu__link">Мои треки</NuxtLink>
         </li>
-        <li class="menu__item">
-          <button class="menu__link logout-btn" @click="handleLogout">Выйти</button>
-        </li>
+        <li v-if="userStore.isAuthenticated" class="menu__item">
+  <button class="menu__link logout-btn" @click="handleLogout">Выйти</button>
+</li>
       </ul>
     </div>
   </nav>
 </template>
 
 <script setup>
+import { useUserStore } from '~/stores/user'
 import { ref } from 'vue'
+
+const userStore = useUserStore()
 
 const isOpen = ref(false)
 

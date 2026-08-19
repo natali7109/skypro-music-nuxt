@@ -96,12 +96,13 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import { usePlayerStore } from '~/stores/player'
 import { useUserStore } from '~/stores/user' 
 import { useAudioPlayer } from '~/composables/useAudioPlayer'
 import { navigateTo } from 'nuxt/app'
 import { useFavoritesStore } from '~/stores/favorites'
+
 
 const playerStore = usePlayerStore()
 const userStore = useUserStore() 

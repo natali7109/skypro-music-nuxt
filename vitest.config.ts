@@ -9,12 +9,12 @@ export default defineConfig({
       '~': resolve(__dirname),
       '@': resolve(__dirname),
       '#app': resolve(__dirname, 'node_modules/nuxt/dist/app'),
-      '#build': resolve(__dirname, '.nuxt'), // ★ ДОБАВИЛИ ★
+      '#build': resolve(__dirname, '.nuxt'), 
     },
   },
   test: {
     globals: true,
-    environment: 'jsdom', // ★ ИЗМЕНИЛИ С 'node' НА 'jsdom' ★
+    environment: 'jsdom', 
     include: ['tests/**/*.test.js', 'tests/**/*.spec.js'],
     exclude: ['node_modules', '.nuxt', 'dist'],
     setupFiles: ['./tests/setup.js'],

@@ -45,6 +45,9 @@
         </div>
       </div>
     </div>
+    <button class="filter__btn filter__reset" @click="resetAllFilters">
+      Сбросить
+    </button>
   </div>
 </template>
 
@@ -53,7 +56,6 @@ import { useFiltersStore } from '~/stores/filters'
 
 const filterStore = useFiltersStore()
 
-// Варианты сортировки по году
 const sortOptions = [
   { label: 'По умолчанию', value: 'default' },
   { label: 'Сначала новые', value: 'newest' },
@@ -63,6 +65,10 @@ const sortOptions = [
 const selectSort = (value) => {
   filterStore.setSort(value)
   filterStore.setActiveFilter(null)  
+}
+
+const resetAllFilters = () => {
+  filterStore.resetFilters()
 }
 </script>
 
@@ -86,7 +92,7 @@ const selectSort = (value) => {
 
 .filter__btn {
   padding: 6px 18px;
-  border: 1px solid #555;
+  border: 1px solid #fff;
   border-radius: 20px;
   background: transparent;
   color: #fff;
@@ -161,5 +167,14 @@ const selectSort = (value) => {
 
 .filter__item.selected:hover {
   background: rgba(115, 52, 234, 0.1);
+}
+.filter__reset {
+  border-color: #fa9898;
+  color: #fa9898;
+}
+
+.filter__reset:hover {
+  border-color: #ff4444;
+  color: #ff4444;
 }
 </style>

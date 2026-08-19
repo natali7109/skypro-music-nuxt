@@ -2,6 +2,9 @@
   <div>
     <h2 class="centerblock__h2">Категория: {{ categoryName }}</h2>
 
+    <!-- ★ ФИЛЬТРЫ ★ -->
+    <FilterControls />
+
     <div v-if="pending" class="skeleton-wrapper">
       <div v-for="n in 5" :key="n" class="skeleton-item">
         <div class="skeleton-line"></div>
@@ -40,6 +43,7 @@
 </template>
 
 <script setup>
+import FilterControls from '@/components/FilterControls.vue'
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import Track from '@/components/Track.vue'
@@ -49,21 +53,18 @@ const route = useRoute()
 const playerStore = usePlayerStore()
 const categoryId = route.params.id
 
-// Название категории (для заголовка)
 const categoryName = computed(() => {
   return categoryId.charAt(0).toUpperCase() + categoryId.slice(1)
 })
 
-// Ленивая загрузка всех треков (страница не блокируется)
 const { data: allTracks, pending, error } = await useFetch(
   'https://webdev-music-003b5b991590.herokuapp.com/catalog/track/all/',
   {
-    lazy: true,                     // ← не блокирует навигацию
+    lazy: true,
     transform: (response) => response.data || [],
   }
 )
 
-// Фильтрация треков по категории (жанру)
 const filteredTracks = computed(() => {
   if (!allTracks.value) return []
   return allTracks.value.filter(track => {
@@ -80,7 +81,6 @@ const selectTrack = (track) => {
 </script>
 
 <style scoped>
-/* ===== СТИЛИ (без изменений) ===== */
 .centerblock__h2 {
   font-size: 64px;
   font-weight: 400;

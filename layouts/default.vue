@@ -39,7 +39,6 @@
       <!-- КОНТЕНТ -->
       <div class="main">
         <div class="main__centerblock">
-          
           <slot />  
         </div>
 
@@ -100,22 +99,15 @@ import { useTracksStore } from '~/stores/tracks'
 import { useUserStore } from '~/stores/user'
 import { useHead } from '#app'
 
-
-
 const router = useRouter()
 const tracksStore = useTracksStore()
 const playerStore = usePlayerStore()
 const userStore = useUserStore()
 
-
-
 onMounted(() => {
   tracksStore.fetchTracks()
 })
 
-
-
-// ===== ВЫХОД =====
 const handleLogout = () => {
   userStore.logout()
   tracksStore.clearTracks()
@@ -124,6 +116,7 @@ const handleLogout = () => {
 
 const currentTrack = computed(() => playerStore.currentTrack)
 </script>
+
 
 <style scoped>
 /* ===== ЛЕВОЕ МЕНЮ ===== */

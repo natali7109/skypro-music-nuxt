@@ -1,19 +1,6 @@
 import { defineStore } from 'pinia'
 
 export const usePlayerStore = defineStore('player', {
-  actions: {
-  resetPlayer() {
-    this.currentTrack = null
-    this.isPlaying = false
-    this.progress = 0
-    if (this.audioRef) {
-      this.audioRef.pause()
-      this.audioRef.src = ''
-      this.audioRef.load()
-    }
-    }
-  }, 
-  
   state: () => ({
     currentTrack: null,
     playlist: [],
@@ -64,8 +51,8 @@ export const usePlayerStore = defineStore('player', {
     },
     shuffleArray(arr) {
       for (let i = arr.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [arr[i], arr[j]] = [arr[j], arr[i]]
+        const j = Math.floor(Math.random() * (i + 1))
+        ;[arr[i], arr[j]] = [arr[j], arr[i]]
       }
       return arr
     },
@@ -73,34 +60,33 @@ export const usePlayerStore = defineStore('player', {
       return this.shuffle ? this.shuffledPlaylist : this.playlist
     },
     getNextTrack() {
-  const list = this.getCurrentPlaylist()
-  if (!list.length) return null
-  const currentId = this.currentTrack?._id
-  const currentIndex = list.findIndex(t => String(t._id) === String(currentId))
-  if (currentIndex === -1) return list[0] || null
-  const nextIndex = currentIndex + 1
-  return nextIndex < list.length ? list[nextIndex] : null
-},
+      const list = this.getCurrentPlaylist()
+      if (!list.length) return null
+      const currentId = this.currentTrack?._id
+      const currentIndex = list.findIndex(t => String(t._id) === String(currentId))
+      if (currentIndex === -1) return list[0] || null
+      const nextIndex = currentIndex + 1
+      return nextIndex < list.length ? list[nextIndex] : null
+    },
     getPrevTrack() {
-  const list = this.getCurrentPlaylist()
-  if (!list.length) return null
-  const currentId = this.currentTrack?._id
-  const currentIndex = list.findIndex(t => String(t._id) === String(currentId))
-  if (currentIndex === -1) return list[list.length - 1] || null
-  const prevIndex = currentIndex - 1
-  return prevIndex >= 0 ? list[prevIndex] : null
-},
+      const list = this.getCurrentPlaylist()
+      if (!list.length) return null
+      const currentId = this.currentTrack?._id
+      const currentIndex = list.findIndex(t => String(t._id) === String(currentId))
+      if (currentIndex === -1) return list[list.length - 1] || null
+      const prevIndex = currentIndex - 1
+      return prevIndex >= 0 ? list[prevIndex] : null
+    },
     resetPlayer() {
       this.currentTrack = null
-  this.isPlaying = false
-  this.progress = 0
-  if (this.audioRef) {
-    this.audioRef.pause()
-    this.audioRef.src = ''
-    this.audioRef.load()
-    this.audioRef = null
+      this.isPlaying = false
+      this.progress = 0
+      if (this.audioRef) {
+        this.audioRef.pause()
+        this.audioRef.src = ''
+        this.audioRef.load()
+        this.audioRef = null
       }
-    }
-  }
+    },
+  },
 })
-
