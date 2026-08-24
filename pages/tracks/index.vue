@@ -4,6 +4,7 @@
 
     <FilterControls />
 
+    <!-- Скелетон -->
     <div v-if="pending" class="skeleton-wrapper">
       <div v-for="n in 10" :key="n" class="skeleton-item">
         <div class="skeleton-line"></div>
@@ -11,6 +12,7 @@
       </div>
     </div>
 
+    <!-- Ошибка -->
     <div v-else-if="error" class="error-message">
       Не удалось загрузить треки: {{ error.message }}
     </div>
@@ -31,6 +33,8 @@
 </template>
 
 <script setup>
+import { useUserStore } from "~/stores/user";
+
 import { watchEffect } from "vue";
 import FilterControls from "@/components/FilterControls.vue";
 import Playlist from "@/components/Playlist.vue";
@@ -40,8 +44,10 @@ import { useTracksStore } from "~/stores/tracks";
 
 const tracksStore = useTracksStore();
 const playerStore = usePlayerStore();
+const userStore = useUserStore();
 const filterStore = useFiltersStore();
 
+// Загружаем треки, если их еще нет
 if (!tracksStore.allTracks.length) {
   tracksStore.fetchTracks();
 }
@@ -68,6 +74,7 @@ if (
   playerStore.setPlaylist(tracksData.value);
 }
 
+// Реактивное обновление
 watchEffect(() => {
   if (tracksStore.allTracks.length) {
     filterStore.setAllTracks(tracksStore.allTracks);
@@ -78,6 +85,12 @@ watchEffect(() => {
 const selectTrack = (track) => {
   playerStore.setCurrentTrack(track);
 };
+
+onMounted(() => {
+  if (!userStore.isAuthenticated) {
+    playerStore.resetPlayer();
+  }
+});
 </script>
 
 <style scoped>

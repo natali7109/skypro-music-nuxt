@@ -4,18 +4,33 @@
 
     <form @submit.prevent="handleLogin">
       <div class="form-group">
-        <input id="email" v-model="email" type="email" required placeholder="Почта" />
+        <input
+          id="email"
+          v-model="email"
+          type="email"
+          required
+          placeholder="Почта"
+        />
       </div>
       <div class="form-group">
-        <input id="password" v-model="password" type="password" required placeholder="Пароль" />
+        <input
+          id="password"
+          v-model="password"
+          type="password"
+          required
+          placeholder="Пароль"
+        />
       </div>
 
       <div class="button-group">
         <button type="submit" :disabled="loading" class="btn btn-primary">
-          {{ loading ? 'Загрузка...' : 'Войти' }}
+          {{ loading ? "Загрузка..." : "Войти" }}
         </button>
         <NuxtLink to="/register" class="btn btn-secondary">
           Зарегистрироваться
+        </NuxtLink>
+        <NuxtLink to="/tracks" class="guest-link">
+          Войти без регистрации
         </NuxtLink>
       </div>
 
@@ -25,70 +40,77 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
-import { useUserStore } from '~/stores/user'
+import { ref } from "vue";
+import { useRouter } from "vue-router";
+import { useUserStore } from "~/stores/user";
 
-definePageMeta({ layout: 'auth' })
+definePageMeta({ layout: "auth" });
 
-const router = useRouter()
-const userStore = useUserStore()
+const router = useRouter();
+const userStore = useUserStore();
 
-const email = ref('')
-const password = ref('')
-const loading = ref(false)
-const errorMessage = ref('')
+const email = ref("");
+const password = ref("");
+const loading = ref(false);
+const errorMessage = ref("");
 
 const handleLogin = async () => {
-  errorMessage.value = ''
-  loading.value = true
+  errorMessage.value = "";
+
+  loading.value = true;
 
   try {
     // 1. Логин
-    const loginResponse = await fetch('https://webdev-music-003b5b991590.herokuapp.com/user/login/', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: email.value, password: password.value })
-    })
-    const loginData = await loginResponse.json()
+    const loginResponse = await fetch(
+      "https://webdev-music-003b5b991590.herokuapp.com/user/login/",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.value, password: password.value }),
+      },
+    );
+    const loginData = await loginResponse.json();
 
     if (!loginResponse.ok) {
       throw createError({
         statusCode: loginResponse.status,
-        message: loginData.message || 'Неверный email или пароль'
-      })
+        message: loginData.message || "Неверный email или пароль",
+      });
     }
 
     // 2. Получение токена
-    const tokenResponse = await fetch('https://webdev-music-003b5b991590.herokuapp.com/user/token/', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: email.value, password: password.value })
-    })
-    const tokenData = await tokenResponse.json()
+    const tokenResponse = await fetch(
+      "https://webdev-music-003b5b991590.herokuapp.com/user/token/",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.value, password: password.value }),
+      },
+    );
+    const tokenData = await tokenResponse.json();
 
     if (!tokenResponse.ok) {
       throw createError({
         statusCode: tokenResponse.status,
-        message: tokenData.message || 'Не удалось получить токен'
-      })
+        message: tokenData.message || "Не удалось получить токен",
+      });
     }
 
-    // 3. Сохраняем через стор пользователя (вместо прямого localStorage)
-    userStore.login(tokenData.access, { email: email.value })
+    // 3. Сохраняем через стор пользователя
+    userStore.login(tokenData.access, { email: email.value });
 
     // 4. Редирект на главную
-    router.push('/')
+    router.push("/");
   } catch (err) {
     if (err.statusCode) {
-      showError(err)
+      showError(err);
     } else {
-      errorMessage.value = err.message || 'Произошла ошибка при входе'
+      errorMessage.value = err.message || "Произошла ошибка при входе";
     }
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-}
+};
 </script>
 
 <style scoped>
@@ -157,7 +179,10 @@ form {
   text-align: center;
   text-decoration: none;
   cursor: pointer;
-  transition: background 0.25s, color 0.25s, border-color 0.25s;
+  transition:
+    background 0.25s,
+    color 0.25s,
+    border-color 0.25s;
 }
 
 .btn-primary {
@@ -182,6 +207,23 @@ form {
   background: #ad61ff;
   color: #ffffff;
   border-color: #ad61ff;
+}
+
+.guest-link {
+  display: block;
+  margin-top: 12px;
+  color: #888888;
+  font-size: 14px;
+  text-align: center;
+  text-decoration: none;
+  transition:
+    color 0.2s,
+    text-decoration 0.2s;
+}
+
+.guest-link:hover {
+  color: #ad61ff;
+  text-decoration: underline;
 }
 
 .error {

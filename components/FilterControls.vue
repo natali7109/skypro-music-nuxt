@@ -4,12 +4,27 @@
 
     <!-- Фильтр по исполнителю -->
     <div class="filter__wrapper">
-      <button class="filter__btn" :class="{ active: filterStore.activeFilter === 'author' }" @click="filterStore.setActiveFilter('author')">
+      <button
+        class="filter__btn"
+        :class="{ active: filterStore.activeFilter === 'author' }"
+        @click="filterStore.setActiveFilter('author')"
+      >
         исполнителю
-        <span v-if="filterStore.selectedAuthors.length" class="badge">{{ filterStore.selectedAuthors.length }}</span>
+        <span v-if="filterStore.selectedAuthors.length" class="badge">{{
+          filterStore.selectedAuthors.length
+        }}</span>
       </button>
-      <div v-if="filterStore.activeFilter === 'author'" class="filter__dropdown">
-        <div v-for="item in filterStore.authorItems" :key="item" class="filter__item" :class="{ selected: filterStore.selectedAuthors.includes(item) }" @click="filterStore.toggleAuthor(item)">
+      <div
+        v-if="filterStore.activeFilter === 'author'"
+        class="filter__dropdown"
+      >
+        <div
+          v-for="item in filterStore.authorItems"
+          :key="item"
+          class="filter__item"
+          :class="{ selected: filterStore.selectedAuthors.includes(item) }"
+          @click="filterStore.toggleAuthor(item)"
+        >
           {{ item }}
         </div>
       </div>
@@ -17,7 +32,11 @@
 
     <!-- Фильтр по году выпуска (сортировка) -->
     <div class="filter__wrapper">
-      <button class="filter__btn" :class="{ active: filterStore.activeFilter === 'year' }" @click="filterStore.setActiveFilter('year')">
+      <button
+        class="filter__btn"
+        :class="{ active: filterStore.activeFilter === 'year' }"
+        @click="filterStore.setActiveFilter('year')"
+      >
         году выпуска
       </button>
       <div v-if="filterStore.activeFilter === 'year'" class="filter__dropdown">
@@ -35,35 +54,53 @@
 
     <!-- Фильтр по жанру (динамический) -->
     <div class="filter__wrapper">
-      <button class="filter__btn" :class="{ active: filterStore.activeFilter === 'genre' }" @click="filterStore.setActiveFilter('genre')">
+      <button
+        class="filter__btn"
+        :class="{ active: filterStore.activeFilter === 'genre' }"
+        @click="filterStore.setActiveFilter('genre')"
+      >
         жанру
-        <span v-if="filterStore.selectedGenres.length" class="badge">{{ filterStore.selectedGenres.length }}</span>
+        <span v-if="filterStore.selectedGenres.length" class="badge">{{
+          filterStore.selectedGenres.length
+        }}</span>
       </button>
       <div v-if="filterStore.activeFilter === 'genre'" class="filter__dropdown">
-        <div v-for="item in filterStore.genreItems" :key="item" class="filter__item" :class="{ selected: filterStore.selectedGenres.includes(item) }" @click="filterStore.toggleGenre(item)">
+        <div
+          v-for="item in filterStore.genreItems"
+          :key="item"
+          class="filter__item"
+          :class="{ selected: filterStore.selectedGenres.includes(item) }"
+          @click="filterStore.toggleGenre(item)"
+        >
           {{ item }}
         </div>
       </div>
     </div>
+    <button class="filter__btn filter__reset" @click="resetAllFilters">
+      Сбросить
+    </button>
   </div>
 </template>
 
 <script setup>
-import { useFiltersStore } from '~/stores/filters'
+import { useFiltersStore } from "~/stores/filters";
 
-const filterStore = useFiltersStore()
+const filterStore = useFiltersStore();
 
-// Варианты сортировки по году
 const sortOptions = [
-  { label: 'По умолчанию', value: 'default' },
-  { label: 'Сначала новые', value: 'newest' },
-  { label: 'Сначала старые', value: 'oldest' }
-]
+  { label: "По умолчанию", value: "default" },
+  { label: "Сначала новые", value: "newest" },
+  { label: "Сначала старые", value: "oldest" },
+];
 
 const selectSort = (value) => {
-  filterStore.setSort(value)
-  filterStore.setActiveFilter(null)  
-}
+  filterStore.setSort(value);
+  filterStore.setActiveFilter(null);
+};
+
+const resetAllFilters = () => {
+  filterStore.resetFilters();
+};
 </script>
 
 <style scoped>
@@ -86,7 +123,7 @@ const selectSort = (value) => {
 
 .filter__btn {
   padding: 6px 18px;
-  border: 1px solid #555;
+  border: 1px solid #fff;
   border-radius: 20px;
   background: transparent;
   color: #fff;
@@ -161,5 +198,14 @@ const selectSort = (value) => {
 
 .filter__item.selected:hover {
   background: rgba(115, 52, 234, 0.1);
+}
+.filter__reset {
+  border-color: #fa9898;
+  color: #fa9898;
+}
+
+.filter__reset:hover {
+  border-color: #ff4444;
+  color: #ff4444;
 }
 </style>

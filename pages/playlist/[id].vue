@@ -1,8 +1,8 @@
 <template>
   <div>
     <h2 class="centerblock__h2">{{ selectionTitle }}</h2>
+    <FilterControls />
 
-    <!-- Скелетон во время загрузки -->
     <div v-if="loading" class="skeleton-wrapper">
       <div v-for="n in 5" :key="n" class="skeleton-item">
         <div class="skeleton-line"></div>
@@ -10,30 +10,32 @@
       </div>
     </div>
 
-    <!-- Ошибка -->
     <div v-else-if="error" class="error-message">
       Не удалось загрузить подборку: {{ error }}
     </div>
 
-    <!-- Нет треков -->
-    <div v-else-if="!tracks.length" class="empty-message">
+    <div v-else-if="!filteredTracks.length" class="empty-message">
       В этой подборке пока нет треков
     </div>
 
-    <!-- Список треков -->
     <div v-else>
       <div class="playlist__header">
         <span class="col-track">ТРЕК</span>
         <span class="col-artist">ИСПОЛНИТЕЛЬ</span>
         <span class="col-album">АЛЬБОМ</span>
         <span class="col-time">
-          <NuxtImg src="/img/icon/watch.svg" alt="Длительность" class="col-time-icon" :placeholder="[5]" />
+          <NuxtImg
+            src="/img/icon/watch.svg"
+            alt="Длительность"
+            class="col-time-icon"
+            :placeholder="[5]"
+          />
         </span>
       </div>
 
       <div class="playlist__list">
         <Track
-          v-for="track in tracks"
+          v-for="track in filteredTracks"
           :key="track._id"
           :track="track"
           @select="selectTrack"
@@ -44,42 +46,66 @@
 </template>
 
 <script setup>
-import { computed, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
-import Track from '@/components/Track.vue'
-import { usePlayerStore } from '~/stores/player'
-import { useSelectionsStore } from '~/stores/selections'
-import { useTracksStore } from '~/stores/tracks'
+import FilterControls from "@/components/FilterControls.vue";
+import { computed, onMounted } from "vue";
+import { useRoute } from "vue-router";
+import Track from "@/components/Track.vue";
+import { usePlayerStore } from "~/stores/player";
+import { useSelectionsStore } from "~/stores/selections";
+import { useTracksStore } from "~/stores/tracks";
+import { useFiltersStore } from "~/stores/filters";
 
-const route = useRoute()
-const playerStore = usePlayerStore()
-const selectionsStore = useSelectionsStore()
-const tracksStore = useTracksStore()
+const route = useRoute();
+const playerStore = usePlayerStore();
+const selectionsStore = useSelectionsStore();
+const tracksStore = useTracksStore();
+const filterStore = useFiltersStore();
 
-const selectionId = route.params.id
+const selectionId = route.params.id;
 
-// Загружаем подборку при монтировании
 onMounted(async () => {
-  await selectionsStore.fetchSelectionById(selectionId)
-})
+  await selectionsStore.fetchSelectionById(selectionId);
+});
 
-// Получаем треки из подборки, используя уже загруженные треки из tracksStore
-const tracks = computed(() => {
-  const itemIds = selectionsStore.currentSelection?.items || []
-  const allTracks = tracksStore.allTracks || []
-  return allTracks.filter(track => itemIds.includes(track._id))
-})
+const filteredTracks = computed(() => {
+  let list = tracksStore.allTracks.filter((track) => {
+    const itemIds = selectionsStore.currentSelection?.items || [];
+    return itemIds.includes(track._id);
+  });
 
-const loading = computed(() => selectionsStore.loading)
-const error = computed(() => selectionsStore.error)
+  if (filterStore.selectedAuthors.length) {
+    list = list.filter((t) => filterStore.selectedAuthors.includes(t.author));
+  }
 
-const selectionTitle = computed(() => {
-  return selectionsStore.currentSelection?.name || 'Подборка'
-})
+  if (filterStore.selectedGenres.length) {
+    list = list.filter((t) => {
+      if (Array.isArray(t.genre)) {
+        return t.genre.some((g) =>
+          filterStore.selectedGenres.includes(g.toLowerCase()),
+        );
+      }
+      return filterStore.selectedGenres.includes(t.genre?.toLowerCase());
+    });
+  }
+
+  if (filterStore.sortBy === "newest") {
+    list.sort((a, b) => new Date(b.release_date) - new Date(a.release_date));
+  } else if (filterStore.sortBy === "oldest") {
+    list.sort((a, b) => new Date(a.release_date) - new Date(b.release_date));
+  }
+
+  return list;
+});
+
+const loading = computed(() => selectionsStore.loading);
+const error = computed(() => selectionsStore.error);
+const selectionTitle = computed(
+  () => selectionsStore.currentSelection?.name || "Подборка",
+);
 
 const selectTrack = (track) => {
-  playerStore.setCurrentTrack(track)
-}
+  playerStore.setCurrentTrack(track);
+};
 </script>
 
 <style scoped>
@@ -119,8 +145,13 @@ const selectTrack = (track) => {
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
 }
 
 .error-message {
@@ -146,9 +177,15 @@ const selectTrack = (track) => {
   text-transform: uppercase;
 }
 
-.col-track { width: 680px; }
-.col-artist { width: 560px; }
-.col-album { width: 520px; }
+.col-track {
+  width: 680px;
+}
+.col-artist {
+  width: 560px;
+}
+.col-album {
+  width: 520px;
+}
 .col-time {
   width: 20px;
   text-align: right;

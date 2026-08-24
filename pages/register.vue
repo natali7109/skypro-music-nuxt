@@ -4,103 +4,125 @@
 
     <form @submit.prevent="handleRegister">
       <div class="form-group">
-        <input id="email" v-model="email" type="email" required placeholder="Почта" />
+        <input
+          id="email"
+          v-model="email"
+          type="email"
+          required
+          placeholder="Почта"
+        />
       </div>
       <div class="form-group">
-        <input id="password" v-model="password" type="password" required placeholder="Пароль" />
+        <input
+          id="password"
+          v-model="password"
+          type="password"
+          required
+          placeholder="Пароль"
+        />
       </div>
 
       <div class="button-group">
         <button type="submit" :disabled="loading" class="btn btn-primary">
-          {{ loading ? 'Регистрация...' : 'Зарегистрироваться' }}
+          {{ loading ? "Регистрация..." : "Зарегистрироваться" }}
         </button>
-        <NuxtLink to="/login" class="btn btn-secondary">
-          Войти
-        </NuxtLink>
+        <NuxtLink to="/login" class="btn btn-secondary"> Войти </NuxtLink>
       </div>
-
+      <p v-if="message" class="info-message">{{ message }}</p>
       <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
     </form>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
-import { useUserStore } from '~/stores/user'
+import { ref } from "vue";
+import { useRouter } from "vue-router";
+import { useRoute } from "vue-router"; // ★ ДОБАВИТЬ ★
+import { useUserStore } from "~/stores/user";
 
-definePageMeta({ layout: 'auth' })
+definePageMeta({ layout: "auth" });
 
-const router = useRouter()
-const userStore = useUserStore()
+const router = useRouter();
+const route = useRoute(); // ★ ДОБАВИТЬ ★
+const userStore = useUserStore();
 
-const email = ref('')
-const password = ref('')
-const loading = ref(false)
-const errorMessage = ref('')
+const email = ref("");
+const password = ref("");
+const loading = ref(false);
+const errorMessage = ref("");
+const message = ref(route.query.message || ""); // ★ ДОБАВИТЬ ★
 
 const handleRegister = async () => {
-  errorMessage.value = ''
-  loading.value = true
+  errorMessage.value = "";
+  loading.value = true;
 
   try {
     // 1. Регистрация
-    const response = await fetch('https://webdev-music-003b5b991590.herokuapp.com/user/signup/', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        username: email.value,
-        email: email.value,
-        password: password.value
-      })
-    })
-    const data = await response.json()
+    const response = await fetch(
+      "https://webdev-music-003b5b991590.herokuapp.com/user/signup/",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username: email.value,
+          email: email.value,
+          password: password.value,
+        }),
+      },
+    );
+    const data = await response.json();
 
     if (!response.ok) {
       throw createError({
         statusCode: response.status,
-        message: data.message || 'Ошибка регистрации'
-      })
+        message: data.message || "Ошибка регистрации",
+      });
     }
 
     // 2. Автоматический вход после регистрации
-    const loginResponse = await fetch('https://webdev-music-003b5b991590.herokuapp.com/user/login/', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: email.value, password: password.value })
-    })
-    const loginData = await loginResponse.json()
+    const loginResponse = await fetch(
+      "https://webdev-music-003b5b991590.herokuapp.com/user/login/",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.value, password: password.value }),
+      },
+    );
+    const loginData = await loginResponse.json();
 
     if (!loginResponse.ok) {
       throw createError({
         statusCode: loginResponse.status,
-        message: loginData.message || 'Не удалось войти'
-      })
+        message: loginData.message || "Не удалось войти",
+      });
     }
 
     // 3. Получение токена
-    const tokenResponse = await fetch('https://webdev-music-003b5b991590.herokuapp.com/user/token/', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: email.value, password: password.value })
-    })
-    const tokenData = await tokenResponse.json()
+    const tokenResponse = await fetch(
+      "https://webdev-music-003b5b991590.herokuapp.com/user/token/",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.value, password: password.value }),
+      },
+    );
+    const tokenData = await tokenResponse.json();
 
     // 4. Сохраняем через стор пользователя
-    userStore.login(tokenData.access, { email: email.value })
+    userStore.login(tokenData.access, { email: email.value });
 
     // 5. Редирект на главную
-    router.push('/')
+    router.push("/");
   } catch (err) {
     if (err.statusCode) {
-      showError(err)
+      showError(err);
     } else {
-      errorMessage.value = err.message || 'Ошибка регистрации'
+      errorMessage.value = err.message || "Ошибка регистрации";
     }
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-}
+};
 </script>
 
 <style scoped>
@@ -170,7 +192,10 @@ form {
   text-align: center;
   text-decoration: none;
   cursor: pointer;
-  transition: background 0.25s, color 0.25s, border-color 0.25s;
+  transition:
+    background 0.25s,
+    color 0.25s,
+    border-color 0.25s;
 }
 
 .btn-primary {
@@ -196,7 +221,12 @@ form {
   color: #ffffff;
   border-color: #ad61ff;
 }
-
+.info-message {
+  color: #ad61ff;
+  margin-top: 14px;
+  text-align: center;
+  font-size: 14px;
+}
 .error {
   color: #ff6b6b;
   margin-top: 14px;

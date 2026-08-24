@@ -1,8 +1,6 @@
 <template>
   <div>
-    <div v-if="!tracks || !tracks.length" class="empty">
-      Нет треков
-    </div>
+    <div v-if="!tracks || !tracks.length" class="empty">Нет треков</div>
 
     <div v-else>
       <div class="playlist__header">
@@ -10,7 +8,12 @@
         <span class="col-artist">ИСПОЛНИТЕЛЬ</span>
         <span class="col-album">АЛЬБОМ</span>
         <span class="col-time">
-          <NuxtImg src="/img/icon/watch.svg" alt="Длительность" class="col-time-icon" :placeholder="[5]" />
+          <NuxtImg
+            src="/img/icon/watch.svg"
+            alt="Длительность"
+            class="col-time-icon"
+            :placeholder="[5]"
+          />
         </span>
       </div>
 
@@ -27,73 +30,75 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
-import Track from './Track.vue'
+import { computed } from "vue";
+import Track from "./Track.vue";
 
 const props = defineProps({
   tracks: {
     type: Array,
     required: true,
-    default: () => []
+    default: () => [],
   },
   searchQuery: {
     type: String,
-    default: ''
+    default: "",
   },
   sortBy: {
     type: String,
-    default: 'default'
+    default: "default",
   },
   selectedAuthors: {
     type: Array,
-    default: () => []
+    default: () => [],
   },
   selectedGenres: {
     type: Array,
-    default: () => []
+    default: () => [],
   },
   selectedYears: {
     type: Array,
-    default: () => []
-  }
-})
+    default: () => [],
+  },
+});
 
-const emit = defineEmits(['select'])
+const emit = defineEmits(["select"]);
 const filteredList = computed(() => {
-  let list = [...props.tracks]
+  let list = [...props.tracks];
 
   // Фильтр по авторам
   if (props.selectedAuthors.length) {
-    list = list.filter(t => props.selectedAuthors.includes(t.author))
+    list = list.filter((t) => props.selectedAuthors.includes(t.author));
   }
 
   // Фильтр по жанрам
   if (props.selectedGenres.length) {
-    list = list.filter(t => {
+    list = list.filter((t) => {
       if (Array.isArray(t.genre)) {
-        return t.genre.some(g => props.selectedGenres.includes(g.toLowerCase()))
+        return t.genre.some((g) =>
+          props.selectedGenres.includes(g.toLowerCase()),
+        );
       }
-      return props.selectedGenres.includes(t.genre?.toLowerCase())
-    })
+      return props.selectedGenres.includes(t.genre?.toLowerCase());
+    });
   }
 
   // Фильтр по годам
   if (props.selectedYears.length) {
-    list = list.filter(t => {
-      const year = t.release_date?.split('-')[0]
-      return props.selectedYears.includes(year)
-    })
+    list = list.filter((t) => {
+      const year = t.release_date?.split("-")[0];
+      return props.selectedYears.includes(year);
+    });
   }
 
   // Сортировка
-  if (props.sortBy === 'newest') {
-    list.sort((a, b) => new Date(b.release_date) - new Date(a.release_date))
-  } else if (props.sortBy === 'oldest') {
-    list.sort((a, b) => new Date(a.release_date) - new Date(b.release_date))
+  if (props.sortBy === "newest") {
+    list.sort((a, b) => new Date(b.release_date) - new Date(a.release_date));
+  } else if (props.sortBy === "oldest") {
+    list.sort((a, b) => new Date(a.release_date) - new Date(b.release_date));
   }
 
-  return list
-})
+  return list;
+});
 </script>
 
 <style scoped>
@@ -107,9 +112,15 @@ const filteredList = computed(() => {
   text-transform: uppercase;
 }
 
-.col-track { width: 680px; }
-.col-artist { width: 560px; }
-.col-album { width: 520px; }
+.col-track {
+  width: 680px;
+}
+.col-artist {
+  width: 560px;
+}
+.col-album {
+  width: 520px;
+}
 .col-time {
   width: 20px;
   text-align: right;

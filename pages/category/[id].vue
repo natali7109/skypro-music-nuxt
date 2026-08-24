@@ -2,6 +2,8 @@
   <div>
     <h2 class="centerblock__h2">Категория: {{ categoryName }}</h2>
 
+    <FilterControls />
+
     <div v-if="pending" class="skeleton-wrapper">
       <div v-for="n in 5" :key="n" class="skeleton-item">
         <div class="skeleton-line"></div>
@@ -23,7 +25,12 @@
         <span class="col-artist">ИСПОЛНИТЕЛЬ</span>
         <span class="col-album">АЛЬБОМ</span>
         <span class="col-time">
-          <NuxtImg src="/img/icon/watch.svg" alt="Длительность" class="col-time-icon" :placeholder="[5]" />
+          <NuxtImg
+            src="/img/icon/watch.svg"
+            alt="Длительность"
+            class="col-time-icon"
+            :placeholder="[5]"
+          />
         </span>
       </div>
 
@@ -40,47 +47,50 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
-import { useRoute } from 'vue-router'
-import Track from '@/components/Track.vue'
-import { usePlayerStore } from '~/stores/player'
+import FilterControls from "@/components/FilterControls.vue";
+import { computed } from "vue";
+import { useRoute } from "vue-router";
+import Track from "@/components/Track.vue";
+import { usePlayerStore } from "~/stores/player";
 
-const route = useRoute()
-const playerStore = usePlayerStore()
-const categoryId = route.params.id
+const route = useRoute();
+const playerStore = usePlayerStore();
+const categoryId = route.params.id;
 
-// Название категории (для заголовка)
 const categoryName = computed(() => {
-  return categoryId.charAt(0).toUpperCase() + categoryId.slice(1)
-})
+  return categoryId.charAt(0).toUpperCase() + categoryId.slice(1);
+});
 
-// Ленивая загрузка всех треков (страница не блокируется)
-const { data: allTracks, pending, error } = await useFetch(
-  'https://webdev-music-003b5b991590.herokuapp.com/catalog/track/all/',
+const {
+  data: allTracks,
+  pending,
+  error,
+} = await useFetch(
+  "https://webdev-music-003b5b991590.herokuapp.com/catalog/track/all/",
   {
-    lazy: true,                     // ← не блокирует навигацию
+    lazy: true,
     transform: (response) => response.data || [],
-  }
-)
+  },
+);
 
-// Фильтрация треков по категории (жанру)
 const filteredTracks = computed(() => {
-  if (!allTracks.value) return []
-  return allTracks.value.filter(track => {
+  if (!allTracks.value) return [];
+  return allTracks.value.filter((track) => {
     if (Array.isArray(track.genre)) {
-      return track.genre.some(g => g.toLowerCase() === categoryId.toLowerCase())
+      return track.genre.some(
+        (g) => g.toLowerCase() === categoryId.toLowerCase(),
+      );
     }
-    return track.genre?.toLowerCase() === categoryId.toLowerCase()
-  })
-})
+    return track.genre?.toLowerCase() === categoryId.toLowerCase();
+  });
+});
 
 const selectTrack = (track) => {
-  playerStore.setCurrentTrack(track)
-}
+  playerStore.setCurrentTrack(track);
+};
 </script>
 
 <style scoped>
-/* ===== СТИЛИ (без изменений) ===== */
 .centerblock__h2 {
   font-size: 64px;
   font-weight: 400;
@@ -108,10 +118,17 @@ const selectTrack = (track) => {
   border-radius: 4px;
   animation: pulse 1.5s infinite;
 }
-.skeleton-line.short { width: 60%; }
+.skeleton-line.short {
+  width: 60%;
+}
 @keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
 }
 .error-message {
   color: #ff6b6b;

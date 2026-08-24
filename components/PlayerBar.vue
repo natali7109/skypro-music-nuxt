@@ -10,25 +10,73 @@
       <div class="bar__player-block">
         <div class="bar__player">
           <div class="player__controls">
-            <button class="player__btn" @click="prevTrack" :disabled="!canPrev" title="Предыдущий">
-              <NuxtImg src="/img/icon/prev.svg" alt="Prev" class="player__icon" :placeholder="[5]" />
-            </button>
-            <button class="player__btn" @click="togglePlay" :title="playerStore.isPlaying ? 'Пауза' : 'Воспроизвести'">
+            <button
+              class="player__btn"
+              @click="prevTrack"
+              :disabled="!canPrev"
+              title="Предыдущий"
+            >
               <NuxtImg
-                :src="playerStore.isPlaying ? '/img/icon/pause.svg' : '/img/icon/play.svg'"
+                src="/img/icon/prev.svg"
+                alt="Prev"
+                class="player__icon"
+                :placeholder="[5]"
+              />
+            </button>
+            <button
+              class="player__btn"
+              @click="togglePlay"
+              :title="playerStore.isPlaying ? 'Пауза' : 'Воспроизвести'"
+            >
+              <NuxtImg
+                :src="
+                  playerStore.isPlaying
+                    ? '/img/icon/pause.svg'
+                    : '/img/icon/play.svg'
+                "
                 alt="Play/Pause"
                 class="player__icon"
                 :placeholder="[5]"
               />
             </button>
-            <button class="player__btn" @click="nextTrack" :disabled="!canNext" title="Следующий">
-              <NuxtImg src="/img/icon/next.svg" alt="Next" class="player__icon" :placeholder="[5]" />
+            <button
+              class="player__btn"
+              @click="nextTrack"
+              :disabled="!canNext"
+              title="Следующий"
+            >
+              <NuxtImg
+                src="/img/icon/next.svg"
+                alt="Next"
+                class="player__icon"
+                :placeholder="[5]"
+              />
             </button>
-            <button class="player__btn" @click="toggleRepeat" :class="{ active: playerStore.repeat }" title="Повтор">
-              <NuxtImg src="/img/icon/repeat.svg" alt="Repeat" class="player__icon" :placeholder="[5]" />
+            <button
+              class="player__btn"
+              @click="toggleRepeat"
+              :class="{ active: playerStore.repeat }"
+              title="Повтор"
+            >
+              <NuxtImg
+                src="/img/icon/repeat.svg"
+                alt="Repeat"
+                class="player__icon"
+                :placeholder="[5]"
+              />
             </button>
-            <button class="player__btn" @click="toggleShuffle" :class="{ active: playerStore.shuffle }" title="Перемешать">
-              <NuxtImg src="/img/icon/shuffle.svg" alt="Shuffle" class="player__icon" :placeholder="[5]" />
+            <button
+              class="player__btn"
+              @click="toggleShuffle"
+              :class="{ active: playerStore.shuffle }"
+              title="Перемешать"
+            >
+              <NuxtImg
+                src="/img/icon/shuffle.svg"
+                alt="Shuffle"
+                class="player__icon"
+                :placeholder="[5]"
+              />
             </button>
           </div>
 
@@ -36,7 +84,10 @@
             <div class="track-play__contain">
               <div class="track-play__image">
                 <NuxtImg
-                  v-if="playerStore.currentTrack?.logo && typeof playerStore.currentTrack.logo === 'string'"
+                  v-if="
+                    playerStore.currentTrack?.logo &&
+                    typeof playerStore.currentTrack.logo === 'string'
+                  "
                   :src="playerStore.currentTrack.logo"
                   alt="Обложка"
                   class="track-play__cover"
@@ -44,22 +95,55 @@
                   loading="lazy"
                 />
                 <svg v-else width="18" height="17" viewBox="0 0 18 17">
-                  <path d="M8 2L8 15M12 4L12 13M4 6L4 11M16 6L16 11" stroke="#4e4e4e" stroke-width="2"/>
+                  <path
+                    d="M8 2L8 15M12 4L12 13M4 6L4 11M16 6L16 11"
+                    stroke="#4e4e4e"
+                    stroke-width="2"
+                  />
                 </svg>
               </div>
               <div class="track-play__info">
                 <div class="track-play__title-row">
-                  <span class="track-play__author">{{ playerStore.currentTrack?.name || 'Не выбрано' }}</span>
-                  <button class="track-play__like-btn" @click.stop="toggleLike" :title="isLiked ? 'Убрать лайк' : 'Поставить лайк'">
-                    <svg v-if="!isLiked" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                  <span class="track-play__author">{{
+                    playerStore.currentTrack?.name || "Не выбрано"
+                  }}</span>
+                  <button
+                    class="track-play__like-btn"
+                    @click.stop="toggleLike"
+                    :title="isLiked ? 'Убрать лайк' : 'Поставить лайк'"
+                  >
+                    <svg
+                      v-if="!isLiked"
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <path
+                        d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
+                      />
                     </svg>
-                    <svg v-else width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" class="liked">
-                      <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                    <svg
+                      v-else
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      class="liked"
+                    >
+                      <path
+                        d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
+                      />
                     </svg>
                   </button>
                 </div>
-                <span class="track-play__album">{{ playerStore.currentTrack?.author || 'Выберите трек' }}</span>
+                <span class="track-play__album">{{
+                  playerStore.currentTrack?.author || "Выберите трек"
+                }}</span>
               </div>
             </div>
           </div>
@@ -69,8 +153,16 @@
           <div class="volume__content">
             <div class="volume__image">
               <svg width="24" height="19" viewBox="0 0 13 18">
-                <path d="M0 6H3L8 1V17L3 12H0V6Z" stroke="currentColor" stroke-width="2"/>
-                <path d="M10 5C10.5 5.5 11 6.5 11 9C11 11.5 10.5 12.5 10 13" stroke="currentColor" stroke-width="2"/>
+                <path
+                  d="M0 6H3L8 1V17L3 12H0V6Z"
+                  stroke="currentColor"
+                  stroke-width="2"
+                />
+                <path
+                  d="M10 5C10.5 5.5 11 6.5 11 9C11 11.5 10.5 12.5 10 13"
+                  stroke="currentColor"
+                  stroke-width="2"
+                />
               </svg>
             </div>
             <div class="volume__progress">
@@ -96,12 +188,17 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
-import { usePlayerStore } from '~/stores/player'
-import { useAudioPlayer } from '~/composables/useAudioPlayer'
+import { ref, onMounted, computed, watch } from "vue";
+import { usePlayerStore } from "~/stores/player";
+import { useUserStore } from "~/stores/user";
+import { useAudioPlayer } from "~/composables/useAudioPlayer";
+import { navigateTo } from "nuxt/app";
+import { useFavoritesStore } from "~/stores/favorites";
 
-const playerStore = usePlayerStore()
-const audioPlayer = ref(null)
+const playerStore = usePlayerStore();
+const userStore = useUserStore();
+const favoritesStore = useFavoritesStore();
+const audioPlayer = ref(null);
 
 const {
   togglePlay,
@@ -114,45 +211,60 @@ const {
   toggleRepeat,
   toggleShuffle,
   initPlayer,
-} = useAudioPlayer()
+} = useAudioPlayer();
 
 onMounted(() => {
   if (audioPlayer.value) {
-    initPlayer(audioPlayer.value)
+    initPlayer(audioPlayer.value);
   }
-})
+
+  if (playerStore.currentTrack && !playerStore.audioRef) {
+    playerStore.resetPlayer();
+  }
+
+  favoritesStore.load();
+});
+
+watch(
+  () => playerStore.audioRef,
+  (newVal) => {
+    if (!newVal && playerStore.currentTrack) {
+      playerStore.resetPlayer();
+    }
+  },
+);
 
 const canPrev = computed(() => {
-  return playerStore.getPrevTrack() !== null
-})
+  return playerStore.getPrevTrack() !== null;
+});
 
 const canNext = computed(() => {
-  return playerStore.getNextTrack() !== null
-})
+  return playerStore.getNextTrack() !== null;
+});
 
 const handleProgressClick = (event) => {
-  if (!playerStore.currentTrack) return
-  const rect = event.currentTarget.getBoundingClientRect()
-  const x = event.clientX - rect.left
-  const percentage = (x / rect.width) * 100
-  seekTo(percentage)
-}
+  if (!playerStore.currentTrack) return;
+  const rect = event.currentTarget.getBoundingClientRect();
+  const x = event.clientX - rect.left;
+  const percentage = (x / rect.width) * 100;
+  seekTo(percentage);
+};
 
 const isLiked = computed(() => {
-  if (!playerStore.currentTrack) return false
-  const liked = JSON.parse(localStorage.getItem('likedTracks') || '[]')
-  return liked.includes(playerStore.currentTrack._id)
-})
+  if (!playerStore.currentTrack) return false;
+  return favoritesStore.isLiked(playerStore.currentTrack._id);
+});
 
 const toggleLike = () => {
-  if (!playerStore.currentTrack) return
-  const id = playerStore.currentTrack._id
-  const liked = JSON.parse(localStorage.getItem('likedTracks') || '[]')
-  const idx = liked.indexOf(id)
-  if (idx > -1) liked.splice(idx, 1)
-  else liked.push(id)
-  localStorage.setItem('likedTracks', JSON.stringify(liked))
-}
+  if (!userStore.isAuthenticated) {
+    navigateTo("/register?message=Для выбора любимых треков зарегистрируйтесь");
+    return;
+  }
+
+  if (!playerStore.currentTrack) return;
+  const id = playerStore.currentTrack._id;
+  favoritesStore.toggle(id);
+};
 </script>
 
 <style scoped>
@@ -218,24 +330,24 @@ const toggleLike = () => {
   cursor: pointer;
   padding: 4px;
   color: #d9d9d9;
-  transition: transform 0.2s ease, color 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    color 0.2s ease;
 }
 .player__icon {
-  width: 16px;  
-  height: 16px;  
+  width: 16px;
+  height: 16px;
   object-fit: contain;
 }
-
 
 .player__btn:hover .player__icon {
   transform: scale(1.4);
   transition: transform 0.2s ease;
 }
 
-
 .player__btn.active {
-  transform: scale(1.2);          
-  color: #7334ea;                 
+  transform: scale(1.2);
+  color: #7334ea;
 }
 
 .player__btn.active svg {
@@ -244,18 +356,18 @@ const toggleLike = () => {
 .player__btn-svg {
   display: block;
   width: auto;
-  height: 20px; 
+  height: 20px;
 }
 
 .player__btn:disabled {
   opacity: 0.3;
   cursor: default;
-  pointer-events: none; 
+  pointer-events: none;
 }
 
-
 .player__btn.active .player__icon {
-  filter: brightness(0) saturate(100%) invert(36%) sepia(97%) saturate(1395%) hue-rotate(253deg) brightness(93%) contrast(96%);
+  filter: brightness(0) saturate(100%) invert(36%) sepia(97%) saturate(1395%)
+    hue-rotate(253deg) brightness(93%) contrast(96%);
 }
 
 /* ===== ИНФОРМАЦИЯ О ТРЕКЕ ===== */
@@ -347,7 +459,7 @@ const toggleLike = () => {
 .bar__volume-block {
   display: flex;
   align-items: center;
-  
+
   flex-shrink: 0;
 }
 

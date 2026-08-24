@@ -56,7 +56,6 @@ export const useFilters = (tracks) => {
     });
   });
 
-  // Проверка, выбран ли автор
   const isAuthorSelected = (author) => selectedAuthors.value.includes(author);
   const toggleAuthor = (author) => {
     const index = selectedAuthors.value.indexOf(author);
@@ -67,7 +66,6 @@ export const useFilters = (tracks) => {
     }
   };
 
-  // Проверка, выбран ли жанр
   const isGenreSelected = (genre) => selectedGenres.value.includes(genre);
   const toggleGenre = (genre) => {
     const index = selectedGenres.value.indexOf(genre);

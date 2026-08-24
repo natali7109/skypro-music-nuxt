@@ -2,16 +2,10 @@
   <nav class="main__nav">
     <!-- Логотип (ссылка на Треки) -->
     <NuxtLink to="/" class="nav__logo-link">
-  <div class="nav__logo">
-    <NuxtImg
-      src="/logo.png"
-      alt="Skypro.Music"
-      class="logo__image"
-      
-      
-    />
-  </div>
-</NuxtLink>
+      <div class="nav__logo">
+        <NuxtImg src="/logo.png" alt="Skypro.Music" class="logo__image" />
+      </div>
+    </NuxtLink>
 
     <!-- Бургер -->
     <div class="nav__burger" @click="toggleMenu">
@@ -29,8 +23,10 @@
         <li class="menu__item">
           <NuxtLink to="/favorites" class="menu__link">Мои треки</NuxtLink>
         </li>
-        <li class="menu__item">
-          <button class="menu__link logout-btn" @click="handleLogout">Выйти</button>
+        <li v-if="userStore.isAuthenticated" class="menu__item">
+          <button class="menu__link logout-btn" @click="handleLogout">
+            Выйти
+          </button>
         </li>
       </ul>
     </div>
@@ -38,18 +34,21 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { useUserStore } from "~/stores/user";
+import { ref } from "vue";
 
-const isOpen = ref(false)
+const userStore = useUserStore();
+
+const isOpen = ref(false);
 
 const toggleMenu = () => {
-  isOpen.value = !isOpen.value
-}
+  isOpen.value = !isOpen.value;
+};
 
 const handleLogout = () => {
-  localStorage.clear()
-  window.location.href = '/login'
-}
+  localStorage.clear();
+  window.location.href = "/login";
+};
 </script>
 
 <style scoped>
